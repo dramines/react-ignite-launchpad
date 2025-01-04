@@ -1,43 +1,43 @@
-const Features = () => {
-  const features = [
-    {
-      title: "Intuitive Design",
-      description: "Crafted with attention to every detail for seamless interaction.",
-    },
-    {
-      title: "Premium Experience",
-      description: "Elevate your workflow with sophisticated tools and features.",
-    },
-    {
-      title: "Innovative Technology",
-      description: "Built using cutting-edge technology for optimal performance.",
-    },
-  ];
+import { Code, Palette, Zap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+const features = [
+  {
+    title: "Fast Development",
+    description: "Quick iterations with hot reload and modern development tools.",
+    icon: <Zap className="w-10 h-10 text-blue-500" />,
+  },
+  {
+    title: "Beautiful Design",
+    description: "Stunning UI components and responsive layouts out of the box.",
+    icon: <Palette className="w-10 h-10 text-purple-500" />,
+  },
+  {
+    title: "Clean Code",
+    description: "Well-structured TypeScript code following best practices.",
+    icon: <Code className="w-10 h-10 text-pink-500" />,
+  },
+];
+
+const Features = () => {
   return (
-    <section className="py-24 px-6 bg-accent/5">
-      <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-bold mb-4">Exceptional Features</h2>
-          <p className="text-secondary max-w-2xl mx-auto">
-            Discover the tools that will transform your creative process
-          </p>
-        </div>
-        <div className="grid md:grid-cols-3 gap-8">
+    <div className="py-20 px-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <div
-              key={index}
-              className="p-8 rounded-2xl bg-white/50 backdrop-blur-sm hover:shadow-lg transition-all duration-300 group"
-            >
-              <h3 className="text-xl font-semibold mb-4 group-hover:translate-y-[-2px] transition-transform duration-200">
-                {feature.title}
-              </h3>
-              <p className="text-secondary">{feature.description}</p>
-            </div>
+            <Card key={index} className="hover-card">
+              <CardHeader>
+                <div className="mb-4">{feature.icon}</div>
+                <CardTitle>{feature.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">{feature.description}</p>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
