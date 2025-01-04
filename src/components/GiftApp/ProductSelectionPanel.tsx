@@ -4,7 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchAllProducts } from '@/services/productsApi';
 import { Input } from "@/components/ui/input";
 import { Product } from '@/types/product';
-import { Search, GripVertical } from 'lucide-react';
+import { Search, GripVertical, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from "@/components/ui/button";
 
 interface ProductSelectionPanelProps {
   onItemDrop: (item: Product) => void;
@@ -14,13 +15,14 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('tous');
   const [draggedItem, setDraggedItem] = useState<Product | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['products'],
     queryFn: fetchAllProducts
   });
 
-  // Get unique itemgroup_product values and format them
   const categories = ['tous', ...new Set(products.map(p => p.itemgroup_product))].map(category => ({
     value: category,
     label: category === 'tous' ? 'Tous' : 
@@ -35,6 +37,11 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
     return matchesSearch && matchesCategory;
   });
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
+
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, item: Product) => {
     e.dataTransfer.setData('product', JSON.stringify(item));
     setDraggedItem(item);
@@ -42,6 +49,18 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
 
   const handleDragEnd = () => {
     setDraggedItem(null);
+  };
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(prev => prev - 1);
+    }
   };
 
   return (
@@ -62,7 +81,10 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
           {categories.map(({ value, label }) => (
             <button
               key={value}
-              onClick={() => setSelectedCategory(value)}
+              onClick={() => {
+                setSelectedCategory(value);
+                setCurrentPage(1); // Reset to first page when changing category
+              }}
               className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all ${
                 selectedCategory === value
                   ? 'bg-[#700100] text-white shadow-md transform scale-105'
@@ -75,7 +97,7 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
         </div>
 
         <div className="grid grid-cols-2 gap-4 overflow-y-auto flex-1 min-h-0">
-          {filteredProducts.map((product) => (
+          {paginatedProducts.map((product) => (
             <motion.div
               key={product.id}
               draggable
@@ -101,6 +123,31 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
               </div>
             </motion.div>
           ))}
+        </div>
+
+        {/* Pagination controls */}
+        <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={prevPage}
+            disabled={currentPage === 1}
+            className="text-[#700100]"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <span className="text-sm text-gray-600">
+            Page {currentPage} sur {totalPages}
+          </span>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={nextPage}
+            disabled={currentPage === totalPages}
+            className="text-[#700100]"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
         </div>
       </div>
     </div>
