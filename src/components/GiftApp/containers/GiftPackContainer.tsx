@@ -23,9 +23,7 @@ const GiftPackContainer = ({
   className = ""
 }: GiftPackContainerProps) => {
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    if (!item) {
-      e.preventDefault();
-    }
+    e.preventDefault();
   };
 
   const isSecondaryPack = containerIndex > 0;
@@ -43,9 +41,6 @@ const GiftPackContainer = ({
             <div className="absolute inset-0 flex flex-col items-center justify-center text-sm text-gray-500 pointer-events-none">
               <MoveDown className="w-8 h-8 mb-2 text-gray-400" />
               <span>Glissez un article ici</span>
-              <span className="text-xs text-gray-400 mt-1">
-                {item ? '1/1' : '0/1'} emplacement utilisé
-              </span>
             </div>
           )}
 

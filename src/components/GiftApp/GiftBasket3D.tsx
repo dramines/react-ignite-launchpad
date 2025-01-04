@@ -23,16 +23,6 @@ const GiftBasket3D = ({ items, onItemDrop, onRemoveItem }: GiftBasket3DProps) =>
 
   const handleDrop = (containerId: number) => (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    // Check if the container already has an item
-    if (items[containerId]) {
-      toast({
-        title: "Emplacement occupé",
-        description: "Veuillez d'abord retirer l'article existant",
-        variant: "destructive",
-      });
-      return;
-    }
-    
     const item = JSON.parse(e.dataTransfer.getData('product'));
     setDroppedItem(item);
     setTargetContainer(containerId);
@@ -98,7 +88,7 @@ const GiftBasket3D = ({ items, onItemDrop, onRemoveItem }: GiftBasket3DProps) =>
           onItemClick={handleProductClick}
           onRemoveItem={handleRemoveItem}
           containerIndex={0}
-          className="h-[300px] bg-white/95 backdrop-blur-sm shadow-xl rounded-xl border border-gray-100"
+          className="h-[300px] bg-white/95 backdrop-blur-sm shadow-xl rounded-xl border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:border-[#700100]/20"
         />
       </div>
 
@@ -113,7 +103,7 @@ const GiftBasket3D = ({ items, onItemDrop, onRemoveItem }: GiftBasket3DProps) =>
             onItemClick={handleProductClick}
             onRemoveItem={handleRemoveItem}
             containerIndex={index + 1}
-            className="h-[250px] bg-white/95 backdrop-blur-sm shadow-xl rounded-xl border border-gray-100"
+            className="h-[250px] bg-white/95 backdrop-blur-sm shadow-xl rounded-xl border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:border-[#700100]/20"
           />
         ))}
       </div>
