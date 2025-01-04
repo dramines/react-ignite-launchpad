@@ -83,7 +83,7 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
               key={value}
               onClick={() => {
                 setSelectedCategory(value);
-                setCurrentPage(1); // Reset to first page when changing category
+                setCurrentPage(1);
               }}
               className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all ${
                 selectedCategory === value
@@ -101,7 +101,7 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
             <motion.div
               key={product.id}
               draggable
-              onDragStart={(e) => handleDragStart(e, product)}
+              onDragStart={(e) => handleDragStart(e as React.DragEvent<HTMLDivElement>, product)}
               onDragEnd={handleDragEnd}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -132,7 +132,7 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
             size="sm"
             onClick={prevPage}
             disabled={currentPage === 1}
-            className="text-[#700100]"
+            className="bg-[#700100] hover:bg-[#590000] text-white border-none"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -144,7 +144,7 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
             size="sm"
             onClick={nextPage}
             disabled={currentPage === totalPages}
-            className="text-[#700100]"
+            className="bg-[#700100] hover:bg-[#590000] text-white border-none"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
