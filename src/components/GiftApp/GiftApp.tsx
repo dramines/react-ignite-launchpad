@@ -9,6 +9,7 @@ import GiftBasket3D from "./GiftBasket3D";
 import PackSummary from "./PackSummary";
 import ConfirmationButton from "./ConfirmationButton";
 import { Product } from "@/types/product";
+import { Package2, Gift } from 'lucide-react';
 
 export interface GiftPack {
   items: Product[];
@@ -24,7 +25,6 @@ const GiftApp = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get pack type from URL
     const packType = window.location.pathname.split('/').pop();
     if (packType) {
       const formattedPackType = packType === 'packpremuim' ? 'Pack Premium' :
@@ -36,10 +36,7 @@ const GiftApp = () => {
       sessionStorage.setItem('selectedPackType', formattedPackType);
     }
     
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-
+    const timer = setTimeout(() => setIsLoading(false), 2000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -90,7 +87,7 @@ const GiftApp = () => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#f6f7f9] to-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-[#f6f7f9] to-white">
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -104,18 +101,28 @@ const GiftApp = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f7f9]  via-gray-50 to-gray-100 py-16 px-4 md:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-[#f6f7f9] to-white py-16 px-4 md:px-8">
       <div className="max-w-7xl mx-auto">
-        <motion.h1 
+        <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-3xl font-['WomanFontBold'] text-[#700100] mb-12 text-center"
+          className="text-center mb-12"
         >
-          Créez Votre Pack Cadeau Personnalisé
-        </motion.h1>
+          <div className="inline-flex items-center justify-center gap-3 mb-4">
+            <Package2 className="w-8 h-8 text-[#700100]" />
+            <h1 className="text-3xl font-['WomanFontBold'] text-[#700100]">
+              Créez Votre Pack Cadeau Personnalisé
+            </h1>
+            <Gift className="w-8 h-8 text-[#700100]" />
+          </div>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Sélectionnez vos articles préférés et créez un pack cadeau unique qui fera plaisir à vos proches.
+          </p>
+        </motion.div>
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <motion.div 
-            className="lg:col-span-4"
+            className="lg:col-span-4 h-full"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
