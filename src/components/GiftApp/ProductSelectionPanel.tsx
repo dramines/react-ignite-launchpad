@@ -1,70 +1,119 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllProducts } from '@/services/productsApi';
 import { Input } from "@/components/ui/input";
 import { Product } from '@/types/product';
-import { Search, GripVertical, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import CategoriesDisplay from './components/CategoriesDisplay';
+import ProductGrid from './components/ProductGrid';
 
 interface ProductSelectionPanelProps {
   onItemDrop: (item: Product) => void;
+  packType: string;
+  selectedContainerIndex: number;
+  selectedItems: Product[];
 }
 
-const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
+const ProductSelectionPanel = ({ 
+  onItemDrop, 
+  packType, 
+  selectedContainerIndex,
+  selectedItems 
+}: ProductSelectionPanelProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('tous');
-  const [draggedItem, setDraggedItem] = useState<Product | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
 
+  // Get available categories based on pack type and container index
+  const getAvailableCategories = () => {
+    switch (packType) {
+      case 'Pack Prestige':
+        return selectedContainerIndex === 0 
+          ? [{ label: 'Chemises', type: 'itemgroup', value: 'chemises' }]
+          : [{ label: 'Accessoires', type: 'type', value: 'Accessoires' }];
+      
+      case 'Pack Premium':
+        return selectedContainerIndex === 0
+          ? [{ label: 'Cravates', type: 'itemgroup', value: 'Cravates' }]
+          : [{ label: 'Accessoires', type: 'type', value: 'Accessoires' }];
+      
+      case 'Pack Trio':
+        if (selectedContainerIndex === 0) {
+          return [{ label: 'Portefeuilles', type: 'itemgroup', value: 'Portefeuilles' }];
+        } else if (selectedContainerIndex === 1) {
+          return [{ label: 'Ceintures', type: 'itemgroup', value: 'Ceintures' }];
+        } else {
+          return [{ label: 'Accessoires', type: 'type', value: 'Accessoires' }];
+        }
+      
+      case 'Pack Duo':
+        return selectedContainerIndex === 0
+          ? [{ label: 'Portefeuilles', type: 'itemgroup', value: 'Portefeuilles' }]
+          : [{ label: 'Ceintures', type: 'itemgroup', value: 'Ceintures' }];
+      
+      case 'Pack Mini Duo':
+        return selectedContainerIndex === 0
+          ? [{ label: 'Porte-cartes', type: 'itemgroup', value: 'Porte-cartes' }]
+          : [{ label: 'Porte-clés', type: 'itemgroup', value: 'Porte-clés' }];
+      
+      default:
+        return [];
+    }
+  };
+
   const { data: products = [], isLoading } = useQuery({
-    queryKey: ['products'],
-    queryFn: fetchAllProducts
+    queryKey: ['products', packType, selectedContainerIndex, selectedItems],
+    queryFn: fetchAllProducts,
+    select: (data) => {
+      let filteredProducts = data;
+      const categories = getAvailableCategories();
+      
+      if (categories.length > 0) {
+        filteredProducts = data.filter(product => {
+          // Check if we should filter out chemises for Pack Prestige
+          if (packType === 'Pack Prestige' && selectedContainerIndex === 0) {
+            const hasChemise = selectedItems.some(item => item.itemgroup_product === 'chemises');
+            if (hasChemise && product.itemgroup_product === 'chemises') {
+              return false;
+            }
+          }
+
+          // Check if we should filter out cravates for Pack Premium
+          if (packType === 'Pack Premium' && selectedContainerIndex === 0) {
+            const hasCravate = selectedItems.some(item => item.itemgroup_product === 'Cravates');
+            if (hasCravate && product.itemgroup_product === 'Cravates') {
+              return false;
+            }
+          }
+
+          return categories.some(category => {
+            if (category.type === 'itemgroup') {
+              return product.itemgroup_product === category.value;
+            } else if (category.type === 'type') {
+              return product.type_product === category.value;
+            }
+            return false;
+          });
+        });
+      }
+
+      return filteredProducts.filter(product => 
+        product.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
   });
 
-  const categories = ['tous', ...new Set(products.map(p => p.itemgroup_product))].map(category => ({
-    value: category,
-    label: category === 'tous' ? 'Tous' : 
-           category.split('-')
-                 .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-                 .join(' ')
-  }));
+  const totalPages = Math.ceil((products?.length || 0) / itemsPerPage);
+  const paginatedProducts = products.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedCategory === 'tous' || product.itemgroup_product === selectedCategory;
-    return matchesSearch && matchesCategory;
-  });
-
-  // Pagination calculations
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedProducts = filteredProducts.slice(startIndex, startIndex + itemsPerPage);
-
-  const handleDragStart = (e: React.DragEvent<HTMLDivElement>, item: Product) => {
-    e.dataTransfer.setData('product', JSON.stringify(item));
-    setDraggedItem(item);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedItem(null);
-  };
-
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-    }
+  const handleDragStart = (event: React.DragEvent<HTMLDivElement>, product: Product) => {
+    console.log('Drag started for product:', product.name);
+    event.dataTransfer.setData('product', JSON.stringify(product));
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-lg rounded-xl shadow-xl p-6 border border-white/20 h-full flex flex-col">
+    <div className="bg-white/90 backdrop-blur-lg rounded-xl shadow-xl p-6 border border-white/20 h-[90%] flex flex-col">
       <div className="space-y-6 flex-1 flex flex-col">
         <div className="relative flex-shrink-0">
           <Search className="absolute left-3 top-3 text-gray-400" size={20} />
@@ -77,60 +126,22 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
           />
         </div>
 
-        <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar flex-shrink-0">
-          {categories.map(({ value, label }) => (
-            <button
-              key={value}
-              onClick={() => {
-                setSelectedCategory(value);
-                setCurrentPage(1);
-              }}
-              className={`px-4 py-2 rounded-full text-sm whitespace-nowrap transition-all ${
-                selectedCategory === value
-                  ? 'bg-[#700100] text-white shadow-md transform scale-105'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
+        <CategoriesDisplay 
+          categories={getAvailableCategories()} 
+          selectedItems={selectedItems}
+          packType={packType}
+        />
+        
+        <ProductGrid 
+          products={paginatedProducts}
+          onDragStart={handleDragStart}
+        />
 
-        <div className="grid grid-cols-2 gap-4 overflow-y-auto flex-1 min-h-0">
-          {paginatedProducts.map((product) => (
-            <motion.div
-              key={product.id}
-              draggable
-              onDragStart={(e) => handleDragStart(e as React.DragEvent<HTMLDivElement>, product)}
-              onDragEnd={handleDragEnd}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`bg-white rounded-lg shadow-sm p-4 cursor-grab active:cursor-grabbing border border-gray-100/50 hover:shadow-md transition-all ${
-                draggedItem?.id === product.id ? 'opacity-50' : ''
-              }`}
-            >
-              <div className="relative">
-                <GripVertical className="absolute top-0 right-0 text-gray-400" size={16} />
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-24 object-contain mb-2"
-                />
-                <h3 className="text-sm font-medium text-gray-900 truncate">
-                  {product.name}
-                </h3>
-                <p className="text-sm text-[#700100] font-medium mt-1">{product.price} TND</p>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Pagination controls */}
         <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100">
           <Button
             variant="outline"
             size="sm"
-            onClick={prevPage}
+            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
             disabled={currentPage === 1}
             className="bg-[#700100] hover:bg-[#590000] text-white border-none"
           >
@@ -142,8 +153,8 @@ const ProductSelectionPanel = ({ onItemDrop }: ProductSelectionPanelProps) => {
           <Button
             variant="outline"
             size="sm"
-            onClick={nextPage}
-            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+            disabled={currentPage >= totalPages}
             className="bg-[#700100] hover:bg-[#590000] text-white border-none"
           >
             <ChevronRight className="h-4 w-4" />

@@ -19,6 +19,7 @@ import BrandNavbarSection from '@/components/productsPages/BrandNavbarSection';
 import MainNavbarProduct from '@/components/productsPages/MainNavbarProduct';
 import PersonalizationInput from '@/components/cart/PersonalizationInput';
 import { savePersonalization, getPersonalizations } from '@/utils/personalizationStorage';
+import MainNavbarProductDetails from '@/components/MainNavbarProductDetails';
 
 const ProductDetailPage = () => {
   const { id } = useParams();
@@ -54,7 +55,6 @@ const ProductDetailPage = () => {
       return;
     }
 
-    // Only save and use personalization if it exists
     const trimmedText = personalizationText?.trim() || '';
     if (trimmedText) {
       savePersonalization(product!.id, trimmedText);
@@ -113,13 +113,13 @@ const ProductDetailPage = () => {
       <TopNavbar />
       <BrandNavbarSection />
       <div className="hidden lg:block">
-        <MainNavbarProduct />
+        <MainNavbarProductDetails />
       </div>
       <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 py-8 mt-[10px] lg:mt-[20px]">
+        <div className="max-w-7xl mx-auto px-4 py-4">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-gray-600 hover:text-[#700100] transition-colors mb-8 group"
+            className="flex items-center gap-2 text-gray-600 hover:text-[#700100] transition-colors mb-6 group"
           >
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
             <span>Retour aux produits</span>
@@ -143,7 +143,6 @@ const ProductDetailPage = () => {
                 price={product.price}
               />
 
-
               <div className="mt-6">
                 <PersonalizationInput
                   itemId={product.id}
@@ -163,8 +162,6 @@ const ProductDetailPage = () => {
                 stock={product.quantity}
                 availableSizes={availableSizes}
               />
-
-          
             </div>
           </div>
 

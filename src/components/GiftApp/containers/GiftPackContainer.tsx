@@ -1,7 +1,13 @@
 import React from 'react';
 import { Product } from '@/types/product';
-import { Trash2, MoveDown } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { X } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 interface GiftPackContainerProps {
   title: string;
@@ -16,88 +22,183 @@ interface GiftPackContainerProps {
 const GiftPackContainer = ({
   title,
   item,
-  onDrop,
+  onDrop: parentOnDrop,
   onItemClick,
   onRemoveItem,
   containerIndex,
-  className = ""
+  className = '',
 }: GiftPackContainerProps) => {
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const [showDetails, setShowDetails] = React.useState(false);
+  const { toast } = useToast();
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    const productData = e.dataTransfer.getData('product');
+    if (!productData) return;
+    
+    const product: Product = JSON.parse(productData);
+    const packType = document.querySelector('[data-pack-type]')?.getAttribute('data-pack-type');
+    
+    // Validate Pack Prestige chemise
+    if (packType === 'Pack Prestige' && product.itemgroup_product === 'chemises') {
+      const existingChemises = document.querySelectorAll('[data-product-type="chemises"]').length;
+      if (existingChemises >= 1) {
+        toast({
+          title: "Limite atteinte",
+          description: "Le Pack Prestige ne peut contenir qu'une seule chemise",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    // Validate Pack Premium cravate
+    if (packType === 'Pack Premium' && product.itemgroup_product === 'Cravates') {
+      const existingCravates = document.querySelectorAll('[data-product-type="Cravates"]').length;
+      if (existingCravates >= 1) {
+        toast({
+          title: "Limite atteinte",
+          description: "Le Pack Premium ne peut contenir qu'une seule cravate",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    parentOnDrop(e);
   };
 
-  const isSecondaryPack = containerIndex > 0;
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.currentTarget.style.borderColor = '#700100';
+    e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.95)';
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.currentTarget.style.borderColor = '';
+    e.currentTarget.style.backgroundColor = item ? 'rgba(255, 255, 255, 0.95)' : '';
+  };
+
+  const handleItemClick = () => {
+    if (item) {
+      setShowDetails(true);
+    }
+  };
 
   return (
-    <div className={className}>
-      <div className="p-4 h-full flex flex-col">
-        <h3 className="text-lg font-medium text-[#6D0201] mb-3 border-b pb-2">{title}</h3>
-        <div
-          onDrop={onDrop}
-          onDragOver={handleDragOver}
-          className="relative flex-1 flex items-center justify-center"
-        >
+    <>
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        className={`relative transition-all duration-300 ${className} ${
+          item ? 'bg-white/95' : ''
+        }`}
+      >
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+          <h3 className="text-lg font-medium text-[#700100] mb-2">{title}</h3>
           {!item && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-sm text-gray-500 pointer-events-none">
-              <MoveDown className="w-8 h-8 mb-2 text-gray-400" />
-              <span>Glissez un article ici</span>
-            </div>
+            <p className="text-sm text-gray-500 text-center">
+              Glissez et déposez un article ici
+            </p>
           )}
-
           {item && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="relative group w-full"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="relative w-full h-full group"
             >
-              <div
-                onClick={() => onItemClick?.(item)}
-                className="bg-white/90 backdrop-blur-sm rounded-lg p-4 shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-shadow flex items-center gap-4"
-              >
-                <div className="relative">
-                  <div className={`${isSecondaryPack ? 'w-16 h-16' : 'w-24 h-24'} rounded-md overflow-hidden bg-gray-50 flex-shrink-0`}>
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-contain p-2"
-                    />
-                  </div>
-                  {item.size && (
-                    <div className={`
-                      absolute -top-2 -right-2 
-                      ${isSecondaryPack ? 'text-xs px-1.5 py-0.5' : 'text-sm px-2 py-1'} 
-                      bg-[#6D0201] text-white rounded-full font-medium
-                    `}>
-                      {item.size}
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className={`${isSecondaryPack ? 'text-base' : 'text-lg'} font-medium text-gray-900 truncate`}>
-                    {item.name}
-                  </div>
-                  <div className={`${isSecondaryPack ? 'text-xs' : 'text-sm'} text-gray-600 mt-2`}>
-                    {item.color && <span>Couleur: {item.color}</span>}
-                  </div>
-                  <div className={`${isSecondaryPack ? 'text-sm' : 'text-base'} text-[#6D0201] font-medium mt-2`}>
-                    {item.price.toFixed(2)} TND
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="relative w-4/5 h-4/5 p-4 rounded-lg bg-white/50 backdrop-blur-sm shadow-sm border border-gray-100/30 transition-all duration-300 group-hover:shadow-md">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-contain cursor-pointer transition-all duration-300 group-hover:scale-105 filter drop-shadow-lg"
+                    onClick={handleItemClick}
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-white/90 backdrop-blur-sm rounded-b-lg">
+                    <p className="text-sm font-medium text-[#700100] truncate text-center">
+                      {item.name}
+                    </p>
                   </div>
                 </div>
               </div>
               {onRemoveItem && (
                 <button
                   onClick={() => onRemoveItem(containerIndex)}
-                  className="absolute -top-2 -right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-lg"
-                  aria-label="Retirer l'article"
+                  className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-red-600 transform hover:scale-110 shadow-lg z-10"
+                  aria-label="Remove item"
                 >
-                  <Trash2 size={16} />
+                  <X size={16} />
                 </button>
               )}
             </motion.div>
           )}
         </div>
       </div>
-    </div>
+
+      {item && (
+        <Dialog open={showDetails} onOpenChange={setShowDetails}>
+          <DialogContent className="max-w-3xl p-0 bg-white/95 backdrop-blur-md rounded-xl overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Left side - Image */}
+              <div className="relative p-6 bg-gray-50">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="w-full h-[300px] object-contain"
+                />
+              </div>
+
+              {/* Right side - Product Details */}
+              <div className="p-6 space-y-4">
+                <h2 className="text-2xl font-['WomanFontBold'] text-[#700100]">
+                  {item.name}
+                </h2>
+
+                <div className="space-y-2 text-gray-700">
+                  <p><span className="font-semibold">Prix:</span> {item.price} TND</p>
+                  <p><span className="font-semibold">Matière:</span> {item.material}</p>
+                  <p><span className="font-semibold">Couleur:</span> {item.color}</p>
+                  <p><span className="font-semibold">Référence:</span> {item.reference}</p>
+                  <p><span className="font-semibold">État:</span> {item.status}</p>
+                </div>
+
+                <div className="pt-4">
+                  <h3 className="font-semibold mb-2 text-black">Description:</h3>
+                  <p className="text-gray-600">{item.description}</p>
+                </div>
+
+                <div className="pt-4">
+                  <h3 className="font-semibold mb-2 text-black">Tailles disponibles:</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {Object.entries(item.sizes).map(([size, quantity]) => (
+                      quantity > 0 && (
+                        <span
+                          key={size}
+                          className="px-3 py-1 bg-gray-100 rounded-full text-sm text-gray-700"
+                        >
+                          {size.toUpperCase()}
+                        </span>
+                      )
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-4">
+                  <Button
+                    onClick={() => setShowDetails(false)}
+                    className="w-full bg-[#700100] hover:bg-[#590000] text-white"
+                  >
+                    Fermer
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 };
 

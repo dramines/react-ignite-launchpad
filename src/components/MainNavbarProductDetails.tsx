@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { NavigationMenuProducts } from './ui/navigation-menuProducts';
 import MainNavbarMenusProducts from './main-navigation/MainNavbarMenusProducts';
 
-const MainNavbar = () => {
+const MainNavbarProductDetails = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const isIndexPage = location.pathname === '/';
@@ -49,4 +49,4 @@ const MainNavbar = () => {
   );
 };
 
-export default MainNavbar;
+export default MainNavbarProductDetails;
