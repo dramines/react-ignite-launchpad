@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 import { NavigationMenuProducts } from './ui/navigation-menuProducts';
 import MainNavbarMenusProducts from './main-navigation/MainNavbarMenusProducts';
 
-const MainNavbar = () => {
+const MainNavbarProduct = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const isIndexPage = location.pathname === '/';
@@ -30,7 +30,7 @@ const MainNavbar = () => {
           : 'bg-transparent'
       }`}
       style={{
-        marginTop: '-60px', // Dynamically set marginTop
+        marginTop: isIndexPage ? '5%' : '-4.1%', // Dynamically set marginTop
         position: isIndexPage ? 'relative' : 'absolute', // Dynamically set position
         backgroundColor: isIndexPage ? '' : '#EFEDED',
       }}
@@ -49,4 +49,4 @@ const MainNavbar = () => {
   );
 };
 
-export default MainNavbar;
+export default MainNavbarProduct;

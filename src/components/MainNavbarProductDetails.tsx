@@ -30,7 +30,7 @@ const MainNavbarProductDetails = () => {
           : 'bg-transparent'
       }`}
       style={{
-        marginTop: isIndexPage ? '5%' : '-4.1%', // Dynamically set marginTop
+        marginTop: '-60px', // Dynamically set marginTop
         position: isIndexPage ? 'relative' : 'absolute', // Dynamically set position
         backgroundColor: isIndexPage ? '' : '#EFEDED',
       }}
