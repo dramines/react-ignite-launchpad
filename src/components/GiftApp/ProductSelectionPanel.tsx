@@ -106,7 +106,7 @@ const ProductSelectionPanel = ({
   };
 
   const content = (
-    <div className="space-y-4 flex-1 flex flex-col">
+    <div className="space-y-4 flex-1 flex flex-col max-h-[calc(100vh-10rem)]">
       <div className="relative flex-shrink-0 px-2">
         <Search className="absolute left-5 top-3 text-gray-400" size={20} />
         <Input
@@ -124,13 +124,15 @@ const ProductSelectionPanel = ({
         packType={packType}
       />
       
-      <ProductGrid 
-        products={paginatedProducts}
-        onDragStart={(e, product) => e.dataTransfer.setData('product', JSON.stringify(product))}
-        onProductSelect={handleProductSelect}
-      />
+      <div className="flex-1 overflow-y-auto min-h-0">
+        <ProductGrid 
+          products={paginatedProducts}
+          onDragStart={(e, product) => e.dataTransfer.setData('product', JSON.stringify(product))}
+          onProductSelect={handleProductSelect}
+        />
+      </div>
 
-      <div className="flex justify-between items-center mt-4 pt-4 border-t border-gray-100 px-2">
+      <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 px-2 sticky bottom-0 bg-white/90 backdrop-blur-sm">
         <Button
           variant="outline"
           size="sm"
