@@ -63,11 +63,11 @@ const OrderSummary = ({
       animate={{ opacity: 1, x: 0 }}
       className="lg:col-span-1"
     >
-      <div className="bg-white rounded-lg shadow-sm p-4 md:p-6 sticky top-20 md:top-32 border border-gray-100">
-        <h2 className="text-lg md:text-xl font-serif text-[#1A1F2C] mb-4 md:mb-6">Résumé de la commande</h2>
+      <div className="bg-white rounded-lg shadow-sm p-6 sticky top-32 border border-gray-100">
+        <h2 className="text-xl font-serif text-[#1A1F2C] mb-6">Résumé de la commande</h2>
         
         {userDetails && (
-          <div className="mb-4 md:mb-6 p-3 md:p-4 bg-[#F1F0FB] rounded-md relative group">
+          <div className="mb-6 p-4 bg-[#F1F0FB] rounded-md relative group">
             <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity">
               {onEditDetails && (
                 <button
@@ -88,8 +88,8 @@ const OrderSummary = ({
                 </button>
               )}
             </div>
-            <h3 className="font-medium text-[#1A1F2C] mb-2 text-sm md:text-base">Informations de livraison</h3>
-            <p className="text-xs md:text-sm text-[#8E9196] break-words">
+            <h3 className="font-medium text-[#1A1F2C] mb-2">Informations de livraison</h3>
+            <p className="text-sm text-[#8E9196]">
               {userDetails.firstName} {userDetails.lastName}<br />
               {userDetails.address}<br />
               {userDetails.zipCode} {userDetails.country}<br />
@@ -99,7 +99,7 @@ const OrderSummary = ({
           </div>
         )}
 
-        <div className="space-y-3 md:space-y-4 text-sm md:text-base">
+        <div className="space-y-4 mb-6">
           <div className="flex justify-between text-[#8E9196]">
             <span>Sous-total</span>
             <span>{subtotal.toFixed(2)} TND</span>
@@ -117,17 +117,18 @@ const OrderSummary = ({
             <span>{shipping === 0 ? 'Gratuite' : `${shipping.toFixed(2)} TND`}</span>
           </div>
           
+          {/* Discount Code Section */}
           <div className="space-y-2 pt-2 border-t border-gray-100">
             <div className="flex gap-2">
               <Input
                 placeholder="Code promo"
                 value={discountCode}
                 onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
-                className="bg-white border-gray-300 focus:border-[#700100] focus:ring-[#700100] text-sm"
+                className="bg-white border-gray-300 focus:border-[#700100] focus:ring-[#700100]"
               />
               <Button
                 onClick={handleApplyDiscount}
-                className="bg-[#700100] text-white hover:bg-[#591C1C] transition-colors whitespace-nowrap text-sm"
+                className="bg-[#700100] text-white hover:bg-[#591C1C] transition-colors"
               >
                 Appliquer
               </Button>
@@ -135,7 +136,7 @@ const OrderSummary = ({
           </div>
 
           <div className="border-t border-gray-100 pt-4">
-            <div className="flex justify-between text-base md:text-lg font-medium text-[#1A1F2C]">
+            <div className="flex justify-between text-lg font-medium text-[#1A1F2C]">
               <span>Total</span>
               <span>{finalTotal.toFixed(2)} TND</span>
             </div>
@@ -152,7 +153,7 @@ const OrderSummary = ({
           finalTotal={finalTotal}
         />
 
-        <div className="mt-4 md:mt-6 space-y-2 text-xs md:text-sm text-[#8E9196]">
+        <div className="mt-6 space-y-2 text-sm text-[#8E9196]">
           <p className="flex items-center gap-2 hover:text-[#1A1F2C] transition-colors">
             • Livraison gratuite à partir de 500 TND
           </p>
