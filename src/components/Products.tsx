@@ -7,6 +7,7 @@ import {
   CarouselPrevious,
 } from "../components/ui/carousel";
 import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
 import ProductCard from './ProductCard';
 import Categories from './Categories';
 import { useQuery } from '@tanstack/react-query';
@@ -15,13 +16,22 @@ import { Skeleton } from './ui/skeleton';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const Products = () => {
-  const [emblaRef] = useEmblaCarousel({
-    loop: true,
-    align: 'start',
-    skipSnaps: false,
-    dragFree: false,
-    containScroll: 'trimSnaps'
-  });
+  const [emblaRef] = useEmblaCarousel(
+    {
+      loop: true,
+      align: 'start',
+      skipSnaps: false,
+      dragFree: false,
+      containScroll: 'trimSnaps'
+    },
+    [
+      Autoplay({
+        delay: 4000,
+        stopOnInteraction: false,
+        stopOnMouseEnter: true,
+      })
+    ]
+  );
 
   const { data: products, isLoading, error } = useQuery({
     queryKey: ['products'],
