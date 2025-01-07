@@ -16,21 +16,25 @@ import { Skeleton } from './ui/skeleton';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 
 const Products = () => {
+  const autoplay = React.useRef(
+    Autoplay({
+      delay: 4000,
+      stopOnInteraction: true,
+      stopOnMouseEnter: true,
+      jump: false // This prevents jumping through multiple slides
+    })
+  );
+
   const [emblaRef] = useEmblaCarousel(
     {
       loop: true,
       align: 'start',
       skipSnaps: false,
       dragFree: false,
-      containScroll: 'trimSnaps'
+      containScroll: 'trimSnaps',
+      slidesToScroll: 1 // Ensures only one slide is scrolled at a time
     },
-    [
-      Autoplay({
-        delay: 4000,
-        stopOnInteraction: false,
-        stopOnMouseEnter: true,
-      })
-    ]
+    [autoplay.current]
   );
 
   const { data: products, isLoading, error } = useQuery({
