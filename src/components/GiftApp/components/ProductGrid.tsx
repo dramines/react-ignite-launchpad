@@ -1,65 +1,43 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Product } from '@/types/product';
-import { GripVertical } from 'lucide-react';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { motion } from 'framer-motion';
 
 interface ProductGridProps {
   products: Product[];
-  onDragStart: (event: React.DragEvent<HTMLDivElement>, product: Product) => void;
-  onProductSelect?: (product: Product) => void;
+  onProductClick: (product: Product) => void;
+  onProductDrop: (product: Product, event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
-const ProductGrid = ({ products, onDragStart, onProductSelect }: ProductGridProps) => {
-  const isMobile = useIsMobile();
-
-  if (products.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-500 text-center italic">
-          Aucun article disponible pour le moment
-        </p>
-      </div>
-    );
-  }
-
-  const handleProductInteraction = (e: React.MouseEvent<HTMLDivElement>, product: Product) => {
-    if (isMobile && onProductSelect) {
-      onProductSelect(product);
-    } else if (!isMobile && e.type === 'dragstart') {
-      onDragStart(e as React.DragEvent<HTMLDivElement>, product);
-    }
+const ProductGrid: React.FC<ProductGridProps> = ({ products, onProductClick, onProductDrop }) => {
+  const handleDragEnd = (product: Product) => (event: React.MouseEvent<HTMLDivElement>) => {
+    onProductDrop(product, event);
   };
 
   return (
-    <div className="grid grid-cols-2 gap-2 md:gap-4 overflow-y-auto flex-1 min-h-0 px-2">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {products.map((product) => (
         <motion.div
           key={product.id}
-          draggable={!isMobile}
-          onDragStart={(e) => handleProductInteraction(e, product)}
-          onClick={(e) => handleProductInteraction(e, product)}
-          data-product-type={product.itemgroup_product}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className={`bg-white rounded-lg shadow-sm p-2 md:p-4 border border-gray-100/50 
-            ${isMobile ? 'active:scale-95 transition-transform cursor-pointer' : 'cursor-grab active:cursor-grabbing'} 
-            hover:shadow-md transition-all`}
+          className="relative cursor-pointer group"
+          whileHover={{ scale: 1.05 }}
+          transition={{ type: "spring", stiffness: 300 }}
+          onClick={() => onProductClick(product)}
+          onDragEnd={(e: React.MouseEvent<HTMLDivElement>) => handleDragEnd(product)(e)}
+          draggable
         >
-          <div className="relative">
-            {!isMobile && <GripVertical className="absolute top-0 right-0 text-gray-400" size={16} />}
+          <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden rounded-lg bg-gray-200 group-hover:opacity-75">
             <img
               src={product.image}
               alt={product.name}
-              className="w-full h-16 md:h-24 object-contain mb-2"
+              className="h-full w-full object-cover object-center"
             />
-            <h3 className="text-xs md:text-sm font-medium text-gray-900 truncate">
-              {product.name}
-            </h3>
-            <p className="text-xs md:text-sm text-[#700100] font-medium mt-1">
-              {product.price} TND
-            </p>
+          </div>
+          <div className="mt-4 flex justify-between">
+            <div>
+              <h3 className="text-sm text-gray-700">{product.name}</h3>
+              <p className="mt-1 text-sm text-gray-500">{product.material}</p>
+            </div>
+            <p className="text-sm font-medium text-gray-900">{product.price} TND</p>
           </div>
         </motion.div>
       ))}

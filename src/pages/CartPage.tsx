@@ -23,14 +23,6 @@ const CartPage = () => {
   const [userDetails, setUserDetails] = useState<UserDetails | null>(getUserDetails());
   const [isEditing, setIsEditing] = useState(false);
 
-  // Memoize calculations
-  const total = React.useMemo(() => 
-    cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0),
-    [cartItems]
-  );
-  const shipping = total > 500 ? 0 : 7;
-  const finalTotal = total + shipping;
-
   const handleUpdateQuantity = (id: number, newQuantity: number) => {
     if (newQuantity >= 1) {
       updateQuantity(id, newQuantity);
@@ -121,7 +113,7 @@ const CartPage = () => {
                     {cartItems.map((item) => (
                       <CartItemCard
                         key={item.id}
-                        item={{...item, price: item.price}}
+                        item={item}
                         onUpdateQuantity={handleUpdateQuantity}
                         onRemove={handleRemoveItem}
                       />
@@ -148,9 +140,6 @@ const CartPage = () => {
                   <div className="animate-pulse h-96 bg-gray-200 rounded-lg"></div>
                 }>
                   <OrderSummary
-                    total={total}
-                    shipping={shipping}
-                    finalTotal={finalTotal}
                     userDetails={userDetails}
                     cartItems={cartItems}
                     onEditDetails={!isEditing ? handleEditDetails : undefined}
