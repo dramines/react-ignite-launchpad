@@ -77,12 +77,12 @@ const GiftBasket3D = ({
   };
 
   return (
-    <div className="space-y-2"> {/* Reduced from space-y-4 to space-y-2 */}
-      <div className="p-6 bg-[#700100]/100 border-4 border-black rounded-xl shadow-xl">
+    <div className="space-y-2">
+      <div className="p-6 bg-black/95 border border-gray-800 rounded-xl shadow-2xl">
         {containerCount === 3 ? (
-          <div className="flex gap-3"> {/* Reduced from gap-4 to gap-3 */}
+          <div className="flex gap-3">
             {/* Left side - GRAND FORMAT container */}
-            <div className="w-[65%] h-[583px]"> {/* Increased from 60% to 65% width and height from 530px to 583px (10% increase) */}
+            <div className="w-[65%] h-[583px]">
               <GiftPackContainer
                 title="GRAND FORMAT"
                 item={items[0]}
@@ -90,7 +90,7 @@ const GiftBasket3D = ({
                 onItemClick={handleProductClick}
                 onRemoveItem={() => onRemoveItem?.(0)}
                 containerIndex={0}
-                className="h-full bg-white/95 backdrop-blur-sm shadow-xl rounded-xl border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:border-[#ab2a3a]/20"
+                className="h-full bg-black/90 backdrop-blur-sm shadow-2xl rounded-xl border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:border-gray-700"
               />
               {particlePosition && targetContainer === 0 && (
                 <AddItemParticles position={particlePosition} />
@@ -98,9 +98,9 @@ const GiftBasket3D = ({
             </div>
             
             {/* Right side - Two MINI containers stacked */}
-            <div className="w-[35%] flex flex-col gap-3"> {/* Increased from 40% to 35% width and reduced gap from gap-4 to gap-3 */}
+            <div className="w-[35%] flex flex-col gap-3">
               {[1, 2].map((index) => (
-                <div key={index} className="h-[280px]"> {/* Increased from 255px to 280px (10% increase) */}
+                <div key={index} className="h-[280px]">
                   <GiftPackContainer
                     title="MINI"
                     item={items[index]}
@@ -108,7 +108,7 @@ const GiftBasket3D = ({
                     onItemClick={handleProductClick}
                     onRemoveItem={() => onRemoveItem?.(index)}
                     containerIndex={index}
-                    className="h-full bg-white/95 backdrop-blur-sm shadow-xl rounded-xl border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:border-[#ab2a3a]/20"
+                    className="h-full bg-black/90 backdrop-blur-sm shadow-2xl rounded-xl border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:border-gray-700"
                   />
                   {particlePosition && targetContainer === index && (
                     <AddItemParticles position={particlePosition} />
