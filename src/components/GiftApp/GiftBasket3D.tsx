@@ -80,9 +80,9 @@ const GiftBasket3D = ({
     <div className="space-y-4">
       <div className="p-6 bg-[#700100]/100 border-4 border-black rounded-xl shadow-xl">
         {containerCount === 3 ? (
-          <div className="flex flex-col gap-4">
-            {/* GRAND FORMAT container */}
-            <div className="w-full h-[300px]">
+          <div className="flex gap-4">
+            {/* Left side - GRAND FORMAT container */}
+            <div className="w-[60%] h-[530px]">
               <GiftPackContainer
                 title="GRAND FORMAT"
                 item={items[0]}
@@ -97,10 +97,10 @@ const GiftBasket3D = ({
               )}
             </div>
             
-            {/* Two MINI containers side by side */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* Right side - Two MINI containers stacked */}
+            <div className="w-[40%] flex flex-col gap-4">
               {[1, 2].map((index) => (
-                <div key={index} className="h-[200px]">
+                <div key={index} className="h-[255px]">
                   <GiftPackContainer
                     title="MINI"
                     item={items[index]}
