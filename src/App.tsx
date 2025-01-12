@@ -20,6 +20,11 @@ const PromoCodesPage = React.lazy(() => import('./pages/PromoCodesPage'));
 const OrderPreviewPage = React.lazy(() => import('./pages/OrderPreviewPage'));
 const ProductDetailPage = React.lazy(() => import('./pages/ProductDetailPage'));
 const FooterCategoryPage = React.lazy(() => import('./pages/FooterCategoryPage'));
+const MondeFioriHistoire = React.lazy(() => import('./pages/MondeFioriHistoire'));
+const MondeFioriCollection = React.lazy(() => import('./pages/MondeFioriCollection'));
+const MondeFioriDNA = React.lazy(() => import('./pages/MondeFioriDNA'));
+const SurMesurePage = React.lazy(() => import('./pages/SurMesurePage'));
+const UniversCadeauxPage = React.lazy(() => import('./pages/UniversCadeauxPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -71,6 +76,14 @@ const App = () => (
                   element={
                     <Suspense fallback={<PageLoader />}>
                       <CategoryPage />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/univers-cadeaux" 
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <UniversCadeauxPage />
                     </Suspense>
                   } 
                 />
@@ -135,6 +148,38 @@ const App = () => (
                   element={
                     <Suspense fallback={<PageLoader />}>
                       <FooterCategoryPage />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/monde-fiori/histoire" 
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <MondeFioriHistoire />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/monde-fiori/collection" 
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <MondeFioriCollection />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/monde-fiori/dna" 
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <MondeFioriDNA />
+                    </Suspense>
+                  } 
+                />
+                <Route 
+                  path="/sur-mesure" 
+                  element={
+                    <Suspense fallback={<PageLoader />}>
+                      <SurMesurePage />
                     </Suspense>
                   } 
                 />

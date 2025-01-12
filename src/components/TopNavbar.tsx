@@ -41,13 +41,9 @@ const TopNavbar = () => {
             </button>
 
             <div className="hidden sm:flex items-center gap-4">
-              <button
-                onClick={() => setIsStoreModalOpen(true)}
-                className="flex items-center gap-2 text-sm text-white whitespace-nowrap hover:text-accent transition-colors duration-300"
-              >
-                <MapPin size={16} />
-                TROUVER UNE BOUTIQUE
-              </button>
+              <span className="flex items-center gap-2 text-sm text-white whitespace-nowrap">
+                Livraison gratuite à partir de 299 TND
+              </span>
             </div>
 
             <div className="flex items-center gap-4 sm:hidden -mr-1">

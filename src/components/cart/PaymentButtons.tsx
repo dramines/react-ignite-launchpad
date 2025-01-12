@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { CreditCard, Wallet } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
 import { initKonnectPayment } from '@/services/konnectApi';
 import PaymentLoadingScreen from '../payment/PaymentLoadingScreen';
-import { updateProductStock } from '@/utils/stockManagement';
 
 interface PaymentButtonsProps {
   enabled: boolean;
@@ -28,6 +27,14 @@ const PaymentButtons = ({
 }: PaymentButtonsProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [showCashPayment, setShowCashPayment] = useState(true);
+
+  useEffect(() => {
+    const hasAnyPersonalization = cartItems.some(item => 
+      item.personalization && item.personalization.trim() !== ''
+    );
+    setShowCashPayment(!hasAnyPersonalization);
+  }, [cartItems]);
 
   const handleKonnectPayment = async () => {
     if (!enabled || !userDetails) {
@@ -110,10 +117,10 @@ const PaymentButtons = ({
           className="w-full bg-[#700100] text-white px-4 py-3 rounded-md hover:bg-[#591C1C] transition-all duration-300 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
         >
           <CreditCard size={20} />
-          {hasPersonalization ? "Payer en ligne" : "Payer avec Konnekt"} ({finalTotal.toFixed(2)} TND)
+          Payer En Ligne ({finalTotal.toFixed(2)} TND)
         </motion.button>
         
-        {!hasPersonalization && (
+        {showCashPayment && (
           <motion.button
             initial={{ opacity: 0.5 }}
             animate={{ opacity: enabled ? 1 : 0.5 }}

@@ -31,10 +31,9 @@ const OrderSummary = ({
 }: OrderSummaryProps) => {
   const [discountCode, setDiscountCode] = useState('');
   const { calculateTotal, hasNewsletterDiscount } = useCart();
-  const { subtotal, discount: newsletterDiscount, total } = calculateTotal();
+  const { subtotal, discount: newsletterDiscount, total, boxTotal } = calculateTotal();
   
-  // Update shipping logic based on the 299 TND threshold
-  const shipping = subtotal > 299 ? 0 : 7;
+  const shipping = subtotal > 299 ? 0 : 8;
   const finalTotal = total + shipping;
 
   // Check if any item has personalization
@@ -109,6 +108,13 @@ const OrderSummary = ({
             <span>Sous-total</span>
             <span>{subtotal.toFixed(2)} TND</span>
           </div>
+          
+          {boxTotal > 0 && (
+            <div className="flex justify-between text-[#8E9196]">
+              <span>Box cadeau</span>
+              <span>{boxTotal.toFixed(2)} TND</span>
+            </div>
+          )}
           
           {hasNewsletterDiscount && newsletterDiscount > 0 && (
             <div className="flex justify-between text-green-600">

@@ -19,7 +19,7 @@ export function GiftBox({ onAnimationComplete }: GiftBoxProps) {
       setIsOpen(true);
       const newParticles = Array.from({ length: 50 }, (_, i) => ({
         id: i,
-        type: i % 2 === 0 ? 'gift' : 'heart', // Alternate between gift and heart shapes
+        type: i % 2 === 0 ? 'gift' : 'heart',
         style: {
           left: `${Math.random() * 100}%`,
           animationDelay: `${Math.random() * 0.5}s`,
@@ -67,23 +67,17 @@ export function GiftBox({ onAnimationComplete }: GiftBoxProps) {
           
           <div className="content flex items-center justify-center">
             <div className="gift-icon-wrapper">
-              <Gift className="gift-icon text-white w-12 h-12" />
-              <div className="gift-glow"></div>
+              <Gift className="gift-icon text-black w-12 h-12" />
             </div>
           </div>
         </div>
 
         <div className="ribbon-vertical"></div>
         <div className="ribbon-horizontal"></div>
-        
-        <div className="ribbon-bow">
-          <div className="bow-left"></div>
-          <div className="bow-right"></div>
-          <div className="bow-center"></div>
-        </div>
       </div>
 
-      <style jsx>{`
+      <style>
+        {`
         .perspective {
           perspective: 3000px;
         }
@@ -137,7 +131,7 @@ export function GiftBox({ onAnimationComplete }: GiftBoxProps) {
 
         .lid-top, .lid-front, .lid-back, .lid-left, .lid-right,
         .base-front, .base-back, .base-left, .base-right, .base-bottom {
-          background: linear-gradient(135deg, #780404, #9a0505);
+          background: linear-gradient(135deg, #000, #000);
           box-shadow: inset 0 0 30px rgba(0,0,0,0.2);
         }
 
@@ -187,25 +181,9 @@ export function GiftBox({ onAnimationComplete }: GiftBoxProps) {
           animation: float 2s ease-in-out infinite;
         }
 
-        .gift-icon {
-          filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.6));
-        }
-
-        .gift-glow {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 60px;
-          height: 60px;
-          transform: translate(-50%, -50%);
-          background: radial-gradient(circle, rgba(255, 0, 0, 0.8) 0%, transparent 70%);
-          animation: pulse 2s ease-in-out infinite;
-        }
-
         .ribbon-vertical, .ribbon-horizontal {
-          background: linear-gradient(45deg, #ff0000, #ff4d4d);
+          background: #700100;
           position: absolute;
-          box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
         }
 
         .ribbon-vertical {
@@ -220,44 +198,6 @@ export function GiftBox({ onAnimationComplete }: GiftBoxProps) {
           height: 30px;
           top: 85px;
           transform: translateZ(101px);
-        }
-
-        .ribbon-bow {
-          position: absolute;
-          top: 70px;
-          left: 70px;
-          transform: translateZ(102px);
-          transform-style: preserve-3d;
-        }
-
-        .bow-left, .bow-right {
-          position: absolute;
-          width: 30px;
-          height: 30px;
-          background: linear-gradient(45deg, #ff0000, #ff4d4d);
-          border-radius: 50% 50% 0 50%;
-          transform-origin: bottom right;
-          box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
-        }
-
-        .bow-left {
-          transform: rotate(-45deg);
-          left: -15px;
-        }
-
-        .bow-right {
-          transform: rotate(45deg) scaleX(-1);
-          right: -15px;
-        }
-
-        .bow-center {
-          position: absolute;
-          width: 20px;
-          height: 20px;
-          background: linear-gradient(45deg, #ff0000, #ff4d4d);
-          border-radius: 50%;
-          top: 30px;
-          left: 30px;
         }
 
         .particle {
@@ -296,21 +236,6 @@ export function GiftBox({ onAnimationComplete }: GiftBoxProps) {
           }
         }
 
-        @keyframes pulse {
-          0% {
-            transform: scale(1);
-            opacity: 1;
-          }
-          50% {
-            transform: scale(1.3);
-            opacity: 0.6;
-          }
-          100% {
-            transform: scale(1);
-            opacity: 1;
-          }
-        }
-
         @keyframes float {
           0% {
             transform: translateY(0);
@@ -322,7 +247,8 @@ export function GiftBox({ onAnimationComplete }: GiftBoxProps) {
             transform: translateY(0);
           }
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 }

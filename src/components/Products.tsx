@@ -1,83 +1,203 @@
-import React from 'react';
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "../components/ui/carousel";
-import useEmblaCarousel from 'embla-carousel-react';
-import ProductCard from './ProductCard';
-import Categories from './Categories';
-import { useQuery } from '@tanstack/react-query';
-import { fetchAllProducts } from '../services/productsApi';
-import { Skeleton } from './ui/skeleton';
-import 'bootstrap-icons/font/bootstrap-icons.css';
+import React, { useEffect, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
+import Autoplay from "embla-carousel-autoplay";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAllProducts } from "../services/productsApi";
+import ProductCard from "./ProductCard";
+import Categories from "./Categories";
 
 const Products = () => {
-  const [emblaRef] = useEmblaCarousel({
-    loop: true,
-    align: 'start',
-    skipSnaps: false,
-    dragFree: false,
-    containScroll: 'trimSnaps'
-  });
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    {
+      loop: true,
+      align: "center",
+      skipSnaps: false,
+      dragFree: false,
+      containScroll: "trimSnaps",
+    },
+    [
+      Autoplay({
+        delay: 4000,
+        stopOnInteraction: false,
+        stopOnMouseEnter: true,
+      }),
+    ]
+  );
 
   const { data: products, isLoading, error } = useQuery({
-    queryKey: ['products'],
+    queryKey: ["products"],
     queryFn: fetchAllProducts,
   });
 
+  // Navigation handlers
+  const scrollPrev = useCallback(() => emblaApi && emblaApi.scrollPrev(), [emblaApi]);
+  const scrollNext = useCallback(() => emblaApi && emblaApi.scrollNext(), [emblaApi]);
+
+  // Enable/disable navigation buttons
+  const [prevEnabled, setPrevEnabled] = React.useState(false);
+  const [nextEnabled, setNextEnabled] = React.useState(false);
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setPrevEnabled(emblaApi.canScrollPrev());
+    setNextEnabled(emblaApi.canScrollNext());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+    onSelect();
+  }, [emblaApi, onSelect]);
+
   if (error) {
-    console.error('Erreur de chargement des produits:', error);
-    return <div className="text-center text-red-500">Échec du chargement des produits</div>;
+    console.error("Error loading products:", error);
+    return <div className="text-center text-red-500">Failed to load products</div>;
   }
 
   return (
-    <div className="w-full overflow-hidden bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl md:text-3xl lg:text-4xl text-center text-[#700100] font-['WomanFontBold'] mb-8">
-          Nouveau produits
-        </h1>
+    <div className="products-wrapper">
+      <div className="products-container">
+        <h1 className="products-title">Nos produits</h1>
         <Categories />
-        <div className="relative w-full" ref={emblaRef}>
-          <Carousel className="w-full">
-            <CarouselContent className="-ml-4">
-              {isLoading ? (
-                Array.from({ length: 6 }).map((_, index) => (
-                  <CarouselItem 
-                    key={index} 
-                    className="pl-4 basis-full md:basis-1/2 lg:basis-1/4"
-                  >
-                    <div className="h-[400px] bg-gray-100 rounded-lg animate-pulse" />
-                  </CarouselItem>
+        <div className="embla" ref={emblaRef}>
+          <div className="embla__container">
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, index) => (
+                  <div className="embla__slide" key={index}>
+                    <div className="skeleton-card"></div>
+                  </div>
                 ))
-              ) : (
-                products?.map((product) => (
-                  <CarouselItem 
-                    key={product.id} 
-                    className="pl-4 basis-full md:basis-1/2 lg:basis-1/4"
-                  >
+              : products?.map((product) => (
+                  <div className="embla__slide" key={product.id}>
                     <ProductCard product={product} />
-                  </CarouselItem>
-                ))
-              )}
-            </CarouselContent>
-            <CarouselPrevious
-              aria-label="Previous product"
-              className="absolute -left-2 md:-left-6 top-1/2 transform -translate-y-1/2 bg-[#700100] hover:bg-black/90 border-none h-8 w-8 md:h-10 md:w-10 rounded-full z-10"
-            >
-              <i className="bi bi-chevron-left text-white"></i>
-            </CarouselPrevious>
-            <CarouselNext
-              aria-label="Next product"
-              className="absolute -right-2 md:-right-6 top-1/2 transform -translate-y-1/2 bg-[#700100] hover:bg-black/90 border-none h-8 w-8 md:h-10 md:w-10 rounded-full z-10"
-            >
-              <i className="bi bi-chevron-right text-white"></i>
-            </CarouselNext>
-          </Carousel>
+                  </div>
+                ))}
+          </div>
         </div>
+        <button
+          className={`embla__button embla__button--prev ${
+            !prevEnabled && "embla__button--disabled"
+          }`}
+          onClick={scrollPrev}
+          disabled={!prevEnabled}
+        >
+          <div>
+         {'<'}
+         </div>
+        </button>
+        <button
+          className={`embla__button embla__button--next ${
+            !nextEnabled && "embla__button--disabled"
+          }`}
+          onClick={scrollNext}
+          disabled={!nextEnabled}
+        >
+          <div>
+           {'>'}
+           </div>
+        </button>
       </div>
+      <style jsx>{`
+        .products-wrapper {
+          width: 100%;
+          overflow: hidden;
+          background-color: #f9fafb;
+          position: relative;
+        }
+        .products-container {
+          margin: 0 auto;
+          padding: 2rem 1rem;
+          max-width: 1200px;
+        }
+        .products-title {
+          font-size: 2rem;
+          text-align: center;
+          color: #700100;
+          margin-bottom: 2rem;
+          font-family: "WomanFontBold";
+        }
+        .embla {
+          overflow: hidden;
+          position: relative;
+          width: 100%;
+        }
+        .embla__container {
+          display: flex;
+          gap: 1rem;
+          transition: transform 0.3s ease;
+        }
+        .embla__slide {
+          min-width: 300px;
+          flex: 0 0 auto;
+          padding: 1rem;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .skeleton-card {
+          height: 400px;
+          width: 100%;
+          background-color: #e5e7eb;
+          border-radius: 8px;
+          animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+          0% {
+            background-color: #e5e7eb;
+          }
+          50% {
+            background-color: #d1d5db;
+          }
+          100% {
+            background-color: #e5e7eb;
+          }
+        }
+ .embla__button {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -40%); /* Fix centering */
+    background-color: #700100;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 35px; /* Increased width and height for clarity */
+    height: 35px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 3.5rem; /* Adjust font size for the arrows */
+    font-weight: bold; /* Ensure arrows are prominent */
+    cursor: pointer;
+    z-index: 10;
+    transition: background-color 0.3s ease;
+  }
+  .embla__button--prev {
+    left: 2rem;
+  }
+   .embla__button div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  font-size: 3.25rem;
+  margin: 10px; 
+  top: 4px; 
+  right: 3px;
+  bottom: 100px;
+}
+
+  .embla__button--next {
+    right: 2rem;
+  }
+        .embla__button:hover {
+          background-color: #000;
+        }
+        .embla__button--disabled {
+          background-color: #d1d5db;
+          cursor: not-allowed;
+        }
+      `}</style>
     </div>
   );
 };

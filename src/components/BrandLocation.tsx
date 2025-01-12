@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 
 const BrandLocation = () => {
-  const location1URL = "https://maps.google.com/?q=Les+Berges+du+Lac,+La+Marsa,+Tunisia";
-  const location2URL = "https://maps.google.com/?q=Tunisia+Mall,+Tunisia";
+  const location1URL = "https://www.google.com/maps/place/Rue+du+Lac+Tib%C3%A9riade,+Tunis/@36.837248,10.2380523,17z/data=!3m1!4b1!4m6!3m5!1s0x12fd35411ec4cf69:0x4b114dea5d7e48b1!8m2!3d36.8372437!4d10.2406272!16s%2Fg%2F1w0dk3ds?entry=ttu&g_ep=EgoyMDI1MDEwMi4wIKXMDSoASAFQAw%3D%3D";
+  const location2URL = "https://www.google.com/maps/place/Tunisia+mall+1/@36.8470569,10.2666298,552m/data=!3m2!1e3!4b1!4m6!3m5!1s0x12fd4b942dc61765:0xd2d385560445a08d!8m2!3d36.8470569!4d10.2692047!16s%2Fg%2F11v18xkmzp?entry=ttu&g_ep=EgoyMDI1MDEwMi4wIKXMDSoASAFQAw%3D%3D";
 
   const [newReview, setNewReview] = useState({
     text: "",
@@ -70,7 +70,7 @@ const BrandLocation = () => {
                 <img src="Thestore.png" alt="Fiori Les Berges du Lac" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <div className="absolute bottom-0 left-0 right-0 p-3 text-white bg-[#591C1C]/90">
                   <p className="text-lg font-['WomanFontBold']">
-                    Rue du Lac Tibériade,<br />Les Berges du lac, La Marsa, Tunisia
+                    Rue du Lac Tibériade , Les Berges du lac
                   </p>
                 </div>
               </div>
@@ -82,7 +82,7 @@ const BrandLocation = () => {
                 <img src="Thestand.png" alt="Fiori Tunisia Mall" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <div className="absolute bottom-0 left-0 right-0 p-3 text-white bg-[#591C1C]/90">
                   <p className="text-lg font-['WomanFontBold']">
-                    Tunisia mall en face Zara et Zayn
+                    Tunisia mall,Les Berges Du Lac II
                   </p>
                 </div>
               </div>

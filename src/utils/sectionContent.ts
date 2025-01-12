@@ -6,8 +6,8 @@ interface SectionContent {
 }
 
 const sectionContent: Record<string, Record<string, Record<string, SectionContent>>> = {
-  "le-monde-fiori": {
-    "homme": {
+  "monde-fiori": {
+    "introduction": {
       "histoire": {
         title: "Notre Histoire",
         subtitle: "HERITAGE",

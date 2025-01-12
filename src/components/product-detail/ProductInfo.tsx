@@ -45,13 +45,12 @@ const ProductInfo = ({ name, description, price, rating = 4.7, reviews = 118 }: 
           </div>
         </div>
 
-        <motion.p 
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-gray-600 leading-relaxed text-base"
-        >
-          {description}
-        </motion.p>
+    <div className="flex flex-col space-y-2">
+  {description.split('\n').map((line, index) => (
+    <p key={index} className="text-gray-600 py-1">{line.trim()}</p>
+  ))}
+</div>
+
       </motion.div>
     </div>
   );

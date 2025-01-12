@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Edit2, X } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -38,13 +37,25 @@ const PersonalizationInput = ({ itemId, onUpdate }: PersonalizationInputProps) =
     onUpdate('');
   };
 
+  const handleCancel = () => {
+    if (!text) {
+      setIsPersonalized(false);
+      onUpdate('');
+    } else {
+      setIsEditing(false);
+    }
+  };
+
   if (!isPersonalized) {
     return (
       <Button
         variant="outline"
         size="sm"
-        className="w-full  mt-2 text-sm bg-[#700100] hover:bg-[#590000] text-white border-[#700100] hover:border-[#590000] transition-all duration-300 shadow-sm hover:shadow-md"
-        onClick={() => setIsPersonalized(true)}
+        className="w-full mt-2 text-sm bg-[#700100] hover:bg-[#590000] text-white border-[#700100] hover:border-[#590000] transition-all duration-300 shadow-sm hover:shadow-md"
+        onClick={() => {
+          setIsPersonalized(true);
+          setIsEditing(true);
+        }}
       >
         + Ajouter une personnalisation
       </Button>
@@ -78,13 +89,7 @@ const PersonalizationInput = ({ itemId, onUpdate }: PersonalizationInputProps) =
               size="sm"
               variant="outline"
               className="flex-1 border-[#700100] bg-white text-[#700100] hover:bg-red-500 hover:text-white transition-all duration-300"
-              onClick={() => {
-                if (!text) {
-                  setIsPersonalized(false);
-                } else {
-                  setIsEditing(false);
-                }
-              }}
+              onClick={handleCancel}
             >
               Annuler
             </Button>
@@ -102,14 +107,14 @@ const PersonalizationInput = ({ itemId, onUpdate }: PersonalizationInputProps) =
             >
               <Edit2 className="h-4 w-4" />
             </Button>
-            <Button
+          {/*   <Button
               size="icon"
               variant="ghost"
               className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50"
               onClick={handleRemove}
             >
               <X className="h-4 w-4" />
-            </Button>
+            </Button> */}
           </div>
         </div>
       )}

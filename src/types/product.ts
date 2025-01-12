@@ -15,12 +15,12 @@ export interface Product {
   relatedProducts: string;
   colorProduct: string;
   sizes: {
-    xs: number;
     s: number;
     m: number;
     l: number;
     xl: number;
     xxl: number;
+    "3xl": number;
   };
   quantity: number;
   type_product: string;

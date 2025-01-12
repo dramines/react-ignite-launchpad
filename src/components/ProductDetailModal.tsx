@@ -13,6 +13,7 @@ import { getPersonalizations } from '@/utils/personalizationStorage';
 import ProductDetailHeader from './product-detail/ProductDetailHeader';
 import ProductDetailContent from './product-detail/ProductDetailContent';
 import ProductDetailActions from './product-detail/ProductDetailActions';
+import GiftBoxSelection from './product-detail/GiftBoxSelection';
 
 interface ProductDetailModalProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ interface ProductDetailModalProps {
     image: string;
     description: string;
     status: string;
+    itemgroup_product: string;
   };
 }
 
@@ -33,6 +35,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }: ProductDetailModalProp
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState('');
   const [isWishlisted, setIsWishlisted] = useState(false);
+  const [selectedBoxOption, setSelectedBoxOption] = useState<boolean | null>(null);
   const [personalization, setPersonalization] = useState(() => {
     const savedPersonalizations = getPersonalizations();
     return savedPersonalizations[product.id] || '';
@@ -51,6 +54,15 @@ const ProductDetailModal = ({ isOpen, onClose, product }: ProductDetailModalProp
       return;
     }
 
+    if (product.itemgroup_product === 'chemises' && selectedBoxOption === null) {
+      toast({
+        title: "Sélection requise",
+        description: "Veuillez choisir si vous souhaitez une boîte cadeau",
+        variant: "destructive",
+      });
+      return;
+    }
+
     addToCart({
       id: product.id,
       name: product.name,
@@ -59,14 +71,15 @@ const ProductDetailModal = ({ isOpen, onClose, product }: ProductDetailModalProp
       quantity: quantity,
       size: selectedSize,
       color: product.color,
-      personalization: personalization
+      personalization: personalization,
+      withBox: selectedBoxOption || false
     });
 
     playTickSound();
     toast({
       title: "Produit ajouté au panier",
       description: `${quantity} x ${product.name} (${selectedSize}) ajouté avec succès`,
-      duration: 5000,
+      duration: 3000,
       style: {
         backgroundColor: '#700100',
         color: 'white',
@@ -112,12 +125,13 @@ const ProductDetailModal = ({ isOpen, onClose, product }: ProductDetailModalProp
             />
 
             <div className="flex-1 overflow-y-auto">
-              <ProductDetailContent
-                description={product.description}
-                material={product.material}
-                color={product.color}
-                id={product.id}
-              />
+              <div className="p-6">
+                <div className="flex flex-col space-y-2">
+                  {product.description.split('\\n').map((line, index) => (
+                    <p key={index} className="text-gray-600 py-1">{line.trim()}</p>
+                  ))}
+                </div>
+              </div>
 
               <div className="p-6 space-y-6">
                 <SizeSelector
@@ -135,6 +149,13 @@ const ProductDetailModal = ({ isOpen, onClose, product }: ProductDetailModalProp
                   />
                 </div>
 
+                {product.itemgroup_product === 'chemises' && (
+                  <GiftBoxSelection
+                    selectedBoxOption={selectedBoxOption}
+                    setSelectedBoxOption={setSelectedBoxOption}
+                  />
+                )}
+
                 <PersonalizationButton
                   productId={product.id}
                   onSave={setPersonalization}
@@ -146,6 +167,7 @@ const ProductDetailModal = ({ isOpen, onClose, product }: ProductDetailModalProp
             <ProductDetailActions
               onAddToCart={handleAddToCart}
               status={product.status}
+              showBoxOption={false}
             />
           </div>
         </div>

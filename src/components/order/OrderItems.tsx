@@ -45,10 +45,16 @@ const OrderItems = ({ items, packType }: OrderItemsProps) => {
                 />
               </div>
               <div className="flex-1 space-y-3">
-                <div>
+                <div className="flex items-center gap-2">
                   <h3 className="text-lg font-medium text-[#471818]">{item.name}</h3>
-                  <p className="text-sm text-gray-500">Réf: {item.id.toString().padStart(6, '0')}</p>
+                  {item.withBox && (
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-[#700100]/10 text-[#700100]">
+                      <Gift size={12} />
+                      + Box cadeau
+                    </span>
+                  )}
                 </div>
+                <p className="text-sm text-gray-500">Réf: {item.id.toString().padStart(6, '0')}</p>
                 
                 <div className="flex flex-wrap gap-3">
                   {item.size && (

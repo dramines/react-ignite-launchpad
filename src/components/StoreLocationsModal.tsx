@@ -22,7 +22,7 @@ const locations: StoreLocation[] = [
   },
   {
     name: "Fiori Tunisia Mall",
-    address: "Tunisia mall en face Zara et Zayn",
+    address: "Tunisia mall en face Zara et Zayn, Address: 1053 Avenue Du Dinar",
     image: "Thestand.png",
     mapsUrl: "https://maps.google.com/?q=Tunisia+Mall,+Tunisia",
   },
