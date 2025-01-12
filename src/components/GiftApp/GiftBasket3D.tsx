@@ -129,7 +129,7 @@ const GiftBasket3D = ({
                   onItemClick={handleProductClick}
                   onRemoveItem={() => onRemoveItem?.(index)}
                   containerIndex={index}
-                  className="h-full bg-white/95 backdrop-blur-sm shadow-xl rounded-xl border border-gray-100 transition-all duration-300 hover:shadow-2xl hover:border-[#ab2a3a]/20"
+                  className="h-full bg-black/90 backdrop-blur-sm shadow-2xl rounded-xl border border-gray-800 transition-all duration-300 hover:shadow-2xl hover:border-gray-700"
                 />
                 {particlePosition && targetContainer === index && (
                   <AddItemParticles position={particlePosition} />
