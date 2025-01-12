@@ -94,7 +94,7 @@ const GiftPackContainer = ({
         className={`relative transition-all duration-300 ${className}`}
       >
         <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-          <h3 className="text-lg font-medium text-white mb-2">{title}</h3>
+          <h3 className={`text-lg font-medium ${item ? 'text-[#700100]' : 'text-white'} mb-2`}>{title}</h3>
           {!item && (
             <p className="text-sm text-gray-400 text-center">
               Glissez et déposez un article ici
