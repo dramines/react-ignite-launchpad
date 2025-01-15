@@ -58,7 +58,7 @@ const PersonalizationButton = ({ productId, onSave, initialText = '' }: Personal
                 className="min-h-[120px] p-4 text-gray-800 bg-gray-50 border-2 border-gray-200 focus:border-[#700100] focus:ring-[#700100] rounded-lg resize-none transition-all duration-300"
               />
               <p className="text-sm text-gray-500 italic">
-                Exemple: "Pour ma chère maman, avec tout mon amour ❤️"
+                Exemple: "Flen Falten"
               </p>
             </div>
             
@@ -66,7 +66,7 @@ const PersonalizationButton = ({ productId, onSave, initialText = '' }: Personal
               <Button
                 onClick={() => setIsOpen(false)}
                 variant="outline"
-                className="flex-1 border-2 border-gray-300 hover:bg-gray-100 text-gray-700 transition-all duration-300"
+                className="flex-1 border-2 border-gray-300 bg-[#fff] hover:bg-[#590000] text-gray-700 transition-all duration-300"
               >
                 Annuler
               </Button>

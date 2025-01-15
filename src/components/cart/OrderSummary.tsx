@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { UserDetails } from '@/utils/userDetailsStorage';
 import PaymentButtons from './PaymentButtons';
-import { Pencil, Trash2, Tag } from 'lucide-react';
+import { Pencil, Trash2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
@@ -36,8 +36,13 @@ const OrderSummary = ({
   const shipping = subtotal > 299 ? 0 : 8;
   const finalTotal = total + shipping;
 
-  // Check if any item has personalization
-  const hasPersonalization = cartItems.some(item => item.personalization);
+  // Calculate personalization total
+  const personalizationTotal = cartItems.reduce((sum, item) => {
+    if (item.itemgroup_product === 'chemises' && item.personalization && item.personalization !== '-' && !item.fromPack) {
+      return sum + (30 * item.quantity);
+    }
+    return sum;
+  }, 0);
 
   const handleApplyDiscount = () => {
     const promoCode = promoCodes[discountCode];
@@ -115,6 +120,13 @@ const OrderSummary = ({
               <span>{boxTotal.toFixed(2)} TND</span>
             </div>
           )}
+
+          {personalizationTotal > 0 && (
+            <div className="flex justify-between text-[#8E9196]">
+              <span>Personnalisation</span>
+              <span>{personalizationTotal.toFixed(2)} TND</span>
+            </div>
+          )}
           
           {hasNewsletterDiscount && newsletterDiscount > 0 && (
             <div className="flex justify-between text-green-600">
@@ -128,23 +140,6 @@ const OrderSummary = ({
             <span>{shipping === 0 ? 'Gratuite' : `${shipping.toFixed(2)} TND`}</span>
           </div>
           
-          <div className="space-y-2 pt-2 border-t border-gray-100">
-            <div className="flex gap-2">
-              <Input
-                placeholder="Code promo"
-                value={discountCode}
-                onChange={(e) => setDiscountCode(e.target.value.toUpperCase())}
-                className="bg-white border-gray-300 focus:border-[#700100] focus:ring-[#700100]"
-              />
-              <Button
-                onClick={handleApplyDiscount}
-                className="bg-[#700100] text-white hover:bg-[#591C1C] transition-colors"
-              >
-                Appliquer
-              </Button>
-            </div>
-          </div>
-
           <div className="border-t border-gray-100 pt-4">
             <div className="flex justify-between text-lg font-medium text-[#1A1F2C]">
               <span>Total</span>
@@ -161,7 +156,7 @@ const OrderSummary = ({
           total={subtotal}
           shipping={shipping}
           finalTotal={finalTotal}
-          hasPersonalization={hasPersonalization}
+          hasPersonalization={cartItems.some(item => item.personalization)}
         />
 
         <div className="mt-6 space-y-2 text-sm text-[#8E9196]">

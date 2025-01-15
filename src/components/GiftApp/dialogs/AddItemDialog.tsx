@@ -8,6 +8,7 @@ import {
 import { Product } from '@/types/product';
 import SizeSelector from '../../product-detail/SizeSelector';
 import PersonalizationButton from '../../product-detail/PersonalizationButton';
+import { canItemBePersonalized, getPersonalizationMessage } from '@/utils/personalizationConfig';
 
 interface AddItemDialogProps {
   open: boolean;
@@ -30,35 +31,70 @@ const AddItemDialog = ({
   onPersonalizationChange,
   onConfirm,
 }: AddItemDialogProps) => {
+  const getAvailableSizes = (product: Product | null): string[] => {
+    if (!product || !product.sizes) return [];
+
+    // For cravates, we don't need size selection
+    if (product.itemgroup_product === 'cravates') {
+      // Automatically select a default size for cravates
+      if (!selectedSize) {
+        onSizeSelect('unique');
+      }
+      return [];
+    }
+
+    return product.itemgroup_product === 'costumes'
+      ? Object.entries(product.sizes)
+          .filter(([key, stock]) => ['48', '50', '52', '54', '56', '58'].includes(key) && stock > 0)
+          .map(([size]) => size)
+      : Object.entries(product.sizes)
+          .filter(([key, stock]) => ['s', 'm', 'l', 'xl', 'xxl', '3xl'].includes(key.toLowerCase()) && stock > 0)
+          .map(([size]) => size.toUpperCase());
+  };
+
+  const availableSizes = getAvailableSizes(droppedItem);
+  const canPersonalize = droppedItem ? canItemBePersonalized(droppedItem.itemgroup_product) : false;
+  const personalizationMessage = droppedItem ? getPersonalizationMessage(droppedItem.itemgroup_product) : undefined;
+  const isCravate = droppedItem?.itemgroup_product === 'cravates';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px] bg-white/95">
         <DialogHeader>
           <DialogTitle className="text-xl font-serif text-[#6D0201] mb-4">
-            Personnalisez votre article
+            {isCravate ? 'Confirmer la sélection' : 'Personnalisez votre article'}
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
-          <SizeSelector
-            selectedSize={selectedSize}
-            sizes={['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL']}
-            onSizeSelect={onSizeSelect}
-          />
+          {!isCravate && availableSizes.length > 0 && (
+            <SizeSelector
+              selectedSize={selectedSize}
+              sizes={availableSizes}
+              onSizeSelect={onSizeSelect}
+              isCostume={droppedItem?.itemgroup_product === 'costumes'}
+            />
+          )}
           
-          <PersonalizationButton
-            productId={droppedItem?.id || 0}
-            onSave={onPersonalizationChange}
-            initialText={personalization}
-          />
+          {canPersonalize && (
+            <PersonalizationButton
+              productId={droppedItem?.id || 0}
+              onSave={onPersonalizationChange}
+              initialText={personalization}
+            />
+          )}
+
+          {!isCravate && availableSizes.length === 0 && !canPersonalize && (
+            <p className="text-red-500">Aucune taille disponible pour ce produit</p>
+          )}
 
           <button
             onClick={onConfirm}
             className={`w-full py-4 rounded-xl text-white font-medium ${
-              !selectedSize
+              (!selectedSize && !isCravate) || (!isCravate && availableSizes.length === 0)
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-[#6D0201] hover:bg-[#590000]'
             }`}
-            disabled={!selectedSize}
+            disabled={(!selectedSize && !isCravate) || (!isCravate && availableSizes.length === 0)}
           >
             Confirmer
           </button>

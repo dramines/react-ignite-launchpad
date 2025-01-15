@@ -6,20 +6,21 @@ import MondeFioriSection from './menu-sections/MondeFioriSection';
 import PretAPorterSection from './menu-sections/PretAPorterSection';
 import AccessoiresSection from './menu-sections/AccessoiresSection';
 import SubMenuSection from '../navigation/SubMenuSection';
-import { Link } from 'react-router-dom';
 
 const MainNavbarMenus = () => {
   return (
     <NavigationMenuList className="flex flex-col lg:flex-row lg:gap-4 gap-4  items-center">
-      <NavMenuItem title="Le monde Fiori" image="/Menu/Universcadeau.png">
+      <NavMenuItem title="Le monde Fiori" image="/Menu/mondefiori.png">
         <MondeFioriSection />
       </NavMenuItem>
 
-      <Link to="/univers-cadeaux">
-        <NavMenuItem title="L'univers Cadeaux" image="/Menu/Universcadeau.png">
-          <GiftUniverseMenu />
-        </NavMenuItem>
-      </Link>
+      <NavMenuItem 
+        title="L'univers Cadeaux" 
+        image="/Menu/Universcadeau.png"
+        href="/univers-cadeaux"
+      >
+        <GiftUniverseMenu />
+      </NavMenuItem>
 
       <NavMenuItem title="Le prêt à porter" image="/Menu/lepresaporte.png">
         <PretAPorterSection />
@@ -29,10 +30,6 @@ const MainNavbarMenus = () => {
         <AccessoiresSection />
       </NavMenuItem>
 
-      <Link to="/sur-mesure" className="text-white text-[16px] lg:text-[21px] hover:text-white/80 transition-colors">
-        Le sur mesure
-      </Link>
-
       <NavMenuItem title="Outlet" image="/Menu/Ooutlet.png">
         <div className="grid grid-cols-2 gap-3">
           <SubMenuSection
@@ -40,13 +37,28 @@ const MainNavbarMenus = () => {
             items={[
               {
                 href: "/category/outlet/homme/costumes",
-                title: "Costume",
+                title: "Costumes",
                 description: "Costumes en promotion"
               },
               {
                 href: "/category/outlet/homme/blazers",
-                title: "Blazer",
+                title: "Blazers",
                 description: "Blazers en solde"
+              },
+              {
+                href: "/category/outlet/homme/chemises",
+                title: "Chemises",
+                description: "Chemises en promotion"
+              },
+              {
+                href: "/category/outlet/homme/pantalons",
+                title: "Pantalons",
+                description: "Pantalons en solde"
+              },
+              {
+                href: "/category/outlet/homme/pollo",
+                title: "Polo",
+                description: "Polos en promotion"
               }
             ]}
           />
@@ -57,6 +69,16 @@ const MainNavbarMenus = () => {
                 href: "/category/outlet/femme/chemises",
                 title: "Chemises",
                 description: "Chemises en promotion"
+              },
+              {
+                href: "/category/outlet/femme/robes",
+                title: "Robes",
+                description: "Robes en solde"
+              },
+              {
+                href: "/category/outlet/femme/vestes",
+                title: "Vestes/Manteaux",
+                description: "Vestes et manteaux en promotion"
               }
             ]}
           />

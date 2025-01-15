@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { CreditCard, Wallet } from 'lucide-react';
+import React, { useState } from 'react';
+import { CreditCard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/components/ui/use-toast";
@@ -16,25 +16,17 @@ interface PaymentButtonsProps {
   hasPersonalization: boolean;
 }
 
+// Set to 1 to use real payment processing
+const BYPASS_PAYMENT = 1;
+
 const PaymentButtons = ({ 
   enabled, 
   cartItems, 
   userDetails, 
-  total, 
-  shipping, 
-  finalTotal,
-  hasPersonalization
+  finalTotal
 }: PaymentButtonsProps) => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
-  const [showCashPayment, setShowCashPayment] = useState(true);
-
-  useEffect(() => {
-    const hasAnyPersonalization = cartItems.some(item => 
-      item.personalization && item.personalization.trim() !== ''
-    );
-    setShowCashPayment(!hasAnyPersonalization);
-  }, [cartItems]);
 
   const handleKonnectPayment = async () => {
     if (!enabled || !userDetails) {
@@ -46,59 +38,72 @@ const PaymentButtons = ({
       return;
     }
 
-    setIsLoading(true);
-
-    try {
-      await new Promise(resolve => setTimeout(resolve, 6000));
-
-      const orderId = `ORDER-${Date.now()}`;
-      const response = await initKonnectPayment({
-        amount: finalTotal,
-        firstName: userDetails.firstName,
-        lastName: userDetails.lastName,
-        email: userDetails.email,
-        orderId,
-      });
-
-      sessionStorage.setItem('pendingOrder', JSON.stringify({
-        cartItems,
-        orderId
-      }));
-
-      window.location.href = response.payUrl;
-    } catch (error) {
-      console.error('Payment error:', error);
-      toast({
-        title: "Erreur de paiement",
-        description: "Échec de l'initialisation du paiement. Veuillez réessayer.",
-        variant: "destructive",
-      });
-      setIsLoading(false);
-    }
-  };
-
-  const handleCashPayment = () => {
-    if (!enabled || !userDetails) {
+    if (finalTotal <= 0) {
       toast({
         title: "Erreur",
-        description: "Veuillez remplir vos coordonnées d'abord",
+        description: "Le montant du paiement doit être supérieur à 0",
         variant: "destructive",
       });
       return;
     }
 
-    navigate('/order-preview', {
-      state: {
-        orderDetails: {
-          items: cartItems,
-          userDetails,
-          total,
-          shipping,
-          finalTotal,
-          paymentMethod: 'cash'
+    setIsLoading(true);
+    console.log('Payment process started with amount:', finalTotal);
+
+    try {
+      const orderId = `ORDER-${Date.now()}`;
+
+      if (BYPASS_PAYMENT === 0) {
+        console.log('Payment bypassed for testing - simulating successful payment');
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        sessionStorage.setItem('pendingOrder', JSON.stringify({
+          cartItems,
+          orderId,
+          payUrl: 'test-mode'
+        }));
+
+        navigate('/payment-success');
+      } else {
+        console.log('Initiating real payment process with Konnect');
+        const response = await initKonnectPayment({
+          amount: Math.round(finalTotal * 100) / 100, // Ensure 2 decimal places
+          firstName: userDetails.firstName,
+          lastName: userDetails.lastName,
+          email: userDetails.email,
+          orderId,
+        });
+
+        console.log('Konnect payment response:', response);
+
+        if (!response || !response.payUrl) {
+          throw new Error('Invalid payment URL received from Konnect');
         }
+
+        sessionStorage.setItem('pendingOrder', JSON.stringify({
+          cartItems,
+          orderId,
+          payUrl: response.payUrl
+        }));
+
+        // Redirect to Konnect payment page
+        window.location.href = response.payUrl;
       }
-    });
+    } catch (error: any) {
+      console.error('Payment error:', error);
+      
+      let errorMessage = "Une erreur s'est produite lors de l'initialisation du paiement.";
+      if (error.message.includes('Invalid amount')) {
+        errorMessage = "Le montant du paiement est invalide.";
+      }
+      
+      toast({
+        title: "Erreur de paiement",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -117,22 +122,10 @@ const PaymentButtons = ({
           className="w-full bg-[#700100] text-white px-4 py-3 rounded-md hover:bg-[#591C1C] transition-all duration-300 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
         >
           <CreditCard size={20} />
-          Payer En Ligne ({finalTotal.toFixed(2)} TND)
+          {BYPASS_PAYMENT === 0 ? 
+            `Payer (Mode Test) (${finalTotal.toFixed(2)} TND)` : 
+            `Payer avec carte bancaire (${finalTotal.toFixed(2)} TND)`}
         </motion.button>
-        
-        {showCashPayment && (
-          <motion.button
-            initial={{ opacity: 0.5 }}
-            animate={{ opacity: enabled ? 1 : 0.5 }}
-            whileHover={enabled ? { scale: 1.02 } : {}}
-            onClick={handleCashPayment}
-            disabled={!enabled || isLoading}
-            className="w-full border border-[#700100] text-[#700100] px-4 py-3 rounded-md hover:bg-[#F1F0FB] transition-all duration-300 flex items-center justify-center gap-2 disabled:cursor-not-allowed"
-          >
-            <Wallet size={20} />
-            Payer en espèces ({finalTotal.toFixed(2)} TND)
-          </motion.button>
-        )}
       </div>
     </>
   );

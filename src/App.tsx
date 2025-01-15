@@ -8,8 +8,9 @@ import { CartProvider } from "./components/cart/CartProvider";
 import { usePageTracking } from "./hooks/usePageTracking";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Skeleton } from "./components/ui/skeleton";
+import { AnimatePresence, motion } from "framer-motion";
 
-// Lazy load pages
+// Lazy load pages with preloading
 const Index = React.lazy(() => import("./pages/Index"));
 const CategoryPage = React.lazy(() => import("./pages/CategoryPage"));
 const GiftUniversePage = React.lazy(() => import("./pages/GiftUniversePage"));
@@ -26,6 +27,15 @@ const MondeFioriDNA = React.lazy(() => import('./pages/MondeFioriDNA'));
 const SurMesurePage = React.lazy(() => import('./pages/SurMesurePage'));
 const UniversCadeauxPage = React.lazy(() => import('./pages/UniversCadeauxPage'));
 
+// Preload critical routes
+const preloadRoutes = () => {
+  const routes = [Index, CategoryPage, GiftUniversePage, CartPage];
+  routes.forEach(route => {
+    const preloadRoute = () => route.preload();
+    requestIdleCallback(preloadRoute);
+  });
+};
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -36,22 +46,43 @@ const queryClient = new QueryClient({
   },
 });
 
-// Loading fallback component
+// Loading fallback component with animation
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center p-4">
+  <motion.div 
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    transition={{ duration: 0.2 }}
+    className="min-h-screen flex items-center justify-center p-4"
+  >
     <div className="w-full max-w-md space-y-4">
       <Skeleton className="h-12 w-full" />
       <Skeleton className="h-64 w-full" />
       <Skeleton className="h-32 w-full" />
     </div>
-  </div>
+  </motion.div>
 );
 
 // Wrapper component to implement tracking
 const TrackingWrapper = ({ children }: { children: React.ReactNode }) => {
   usePageTracking();
+  React.useEffect(() => {
+    preloadRoutes();
+  }, []);
   return <>{children}</>;
 };
+
+// Page wrapper with transitions
+const PageWrapper = ({ children }: { children: React.ReactNode }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    transition={{ duration: 0.2 }}
+  >
+    {children}
+  </motion.div>
+);
 
 const App = () => (
   <ErrorBoundary>
@@ -62,7 +93,8 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <TrackingWrapper>
-              <Routes>
+              <AnimatePresence mode="wait">
+                <Routes>
                 <Route 
                   path="/" 
                   element={
@@ -184,7 +216,8 @@ const App = () => (
                   } 
                 />
                 <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
+                </Routes>
+              </AnimatePresence>
             </TrackingWrapper>
           </BrowserRouter>
         </CartProvider>
