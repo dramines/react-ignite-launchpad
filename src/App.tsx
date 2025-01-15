@@ -10,7 +10,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary";
 import { Skeleton } from "./components/ui/skeleton";
 import { AnimatePresence, motion } from "framer-motion";
 
-// Lazy load pages with preloading
+// Lazy load pages
 const Index = React.lazy(() => import("./pages/Index"));
 const CategoryPage = React.lazy(() => import("./pages/CategoryPage"));
 const GiftUniversePage = React.lazy(() => import("./pages/GiftUniversePage"));
@@ -26,15 +26,6 @@ const MondeFioriCollection = React.lazy(() => import('./pages/MondeFioriCollecti
 const MondeFioriDNA = React.lazy(() => import('./pages/MondeFioriDNA'));
 const SurMesurePage = React.lazy(() => import('./pages/SurMesurePage'));
 const UniversCadeauxPage = React.lazy(() => import('./pages/UniversCadeauxPage'));
-
-// Preload critical routes
-const preloadRoutes = () => {
-  const routes = [Index, CategoryPage, GiftUniversePage, CartPage];
-  routes.forEach(route => {
-    const preloadRoute = () => route.preload();
-    requestIdleCallback(preloadRoute);
-  });
-};
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -66,9 +57,6 @@ const PageLoader = () => (
 // Wrapper component to implement tracking
 const TrackingWrapper = ({ children }: { children: React.ReactNode }) => {
   usePageTracking();
-  React.useEffect(() => {
-    preloadRoutes();
-  }, []);
   return <>{children}</>;
 };
 
