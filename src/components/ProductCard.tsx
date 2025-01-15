@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../types/product';
 import { calculateFinalPrice, formatPrice } from '@/utils/priceCalculations';
+import { PenLine } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -66,9 +67,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
               {formatPrice(finalPrice)} TND
             </span>
           )}
-          {product.itemgroup_product === 'chemises' && product.personalization && (
-            <div className="text-xs text-gray-500 mt-1">
-              (Inclus frais de personnalisation: 30 TND)
+          {product.personalization && product.itemgroup_product === 'chemises' && (
+            <div className="flex items-center gap-1 text-xs text-[#700100] mt-1">
+              <PenLine size={12} />
+              Personnalisation: +30 TND
             </div>
           )}
         </div>

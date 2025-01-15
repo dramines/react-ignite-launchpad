@@ -15,14 +15,15 @@ export const calculateFinalPrice = (
   basePrice: number, 
   discount: string, 
   itemGroup?: string, 
-  hasPersonalization?: boolean
+  hasPersonalization?: boolean,
+  isInPack: boolean = false
 ): number => {
-  console.log('Calculating final price:', { basePrice, discount, itemGroup, hasPersonalization });
+  console.log('Calculating final price:', { basePrice, discount, itemGroup, hasPersonalization, isInPack });
   
   const discountedPrice = calculateDiscountedPrice(basePrice, discount);
   
-  // Add personalization fee for chemises if personalization exists
-  const personalizationFee = (itemGroup === 'chemises' && hasPersonalization) ? PERSONALIZATION_FEE : 0;
+  // Add personalization fee for chemises if personalization exists and not in a pack
+  const personalizationFee = (itemGroup === 'chemises' && hasPersonalization && !isInPack) ? PERSONALIZATION_FEE : 0;
   console.log('Personalization fee:', personalizationFee);
   
   const finalPrice = discountedPrice + personalizationFee;

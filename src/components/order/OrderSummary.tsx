@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ShoppingBag, Truck, CreditCard, Clock } from 'lucide-react';
+import { ShoppingBag, Truck, CreditCard, Clock, PenLine } from 'lucide-react';
 
 interface OrderSummaryProps {
   subtotal: number;
@@ -8,6 +8,7 @@ interface OrderSummaryProps {
   finalTotal: number;
   hasNewsletterDiscount?: boolean;
   newsletterDiscount?: number;
+  personalizationTotal?: number;
 }
 
 const OrderSummary = ({ 
@@ -15,7 +16,8 @@ const OrderSummary = ({
   shipping, 
   finalTotal,
   hasNewsletterDiscount = false,
-  newsletterDiscount = 0
+  newsletterDiscount = 0,
+  personalizationTotal = 0
 }: OrderSummaryProps) => {
   return (
     <motion.div 
@@ -30,6 +32,16 @@ const OrderSummary = ({
             <span>Sous-total</span>
             <span>{subtotal.toFixed(2)} TND</span>
           </div>
+          
+          {personalizationTotal > 0 && (
+            <div className="flex justify-between text-[#700100]">
+              <div className="flex items-center gap-2">
+                <PenLine size={16} />
+                <span>Personnalisation</span>
+              </div>
+              <span>+{personalizationTotal.toFixed(2)} TND</span>
+            </div>
+          )}
           
           {hasNewsletterDiscount && newsletterDiscount > 0 && (
             <div className="flex justify-between text-green-600">
