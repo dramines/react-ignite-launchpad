@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 const BrandLocation = () => {
   const location1URL =
-    "https://www.google.com/maps/place/Fiori+Les+Berges+du+Lac/@36.8416296,10.2573344,17z/data=!3m1!4b1!4m6!3m5!1s0x12fd346735b36717:0xf853633460773436!8m2!3d36.8416296!4d10.2599093!16s%2Fg%2F11t82r9jb1?entry=ttu&g_ep=EgoyMDI1MDEwMi4wIKXMDSoASAFQAw%3D%3D";
+    "https://maps.app.goo.gl/XwKyafqHxpm5Jnsv8";
 
   const [showThankYou, setShowThankYou] = useState(false);
   const [newReview, setNewReview] = useState({
@@ -27,7 +27,7 @@ const BrandLocation = () => {
         <div className="w-[91%] flex flex-wrap gap-6 justify-center">
           {/* Location Card */}
           <div className="w-[46%] min-w-[300px] flex flex-col flex-grow">
-            <h2 className="text-2xl mb-6 font-['WomanFontBold'] text-[#591C1C] text-center">
+            <h2 className="text-3xl mb-6 font-['WomanFontBold'] text-[#591C1C] text-center">
               Trouver un magasin
             </h2>
             <a href={location1URL} target="_blank" rel="noopener noreferrer" className="flex-1">
@@ -48,7 +48,7 @@ const BrandLocation = () => {
 
           {/* Review Form Card */}
           <div className="w-[47%] min-w-[300px] flex flex-col flex-grow">
-            <h2 className="text-2xl mb-6 font-['WomanFontBold'] text-[#591C1C] text-center">
+            <h2 className="text-3xl mb-6 font-['WomanFontBold'] text-[#591C1C] text-center">
               Laissez votre avis
             </h2>
             <div className="bg-white rounded-xl p-5 flex items-center justify-center flex-1">

@@ -16,7 +16,7 @@ const sectionContent: Record<string, Record<string, Record<string, SectionConten
       },
       "collection": {
         title: "Collections",
-        subtitle: "ARTISANAT",
+        subtitle: "-",
         description: "EXPLOREZ NOS COLLECTIONS EXCLUSIVES, CRÉÉES AVEC PASSION ET SAVOIR-FAIRE.",
         imageUrl: "/Articles/2.png"
       },
@@ -34,13 +34,37 @@ const sectionContent: Record<string, Record<string, Record<string, SectionConten
         title: "Costumes",
         subtitle: "ÉLÉGANCE",
         description: "DES COSTUMES RAFFINÉS, TAILLÉS DANS LES PLUS BEAUX TISSUS ITALIENS.",
-        imageUrl: "/Men1.png"
+        imageUrl: "/pcis/costumes.png"
       },
       "blazers": {
         title: "Blazers",
         subtitle: "STYLE",
         description: "LA SOPHISTICATION AU QUOTIDIEN AVEC NOS BLAZERS INTEMPORELS.",
-        imageUrl: "/Men2.png"
+        imageUrl: "/pcis/blazers.png"
+      },
+      "vestes": {
+        title: "Vestes",
+        subtitle: "STYLE",
+        description: "LA SOPHISTICATION AU QUOTIDIEN AVEC NOS VESTES INTEMPORELS.",
+        imageUrl: "/pcis/blazers.png"
+      },
+      "chemises": {
+        title: "Chemises",
+        subtitle: "RAFFINEMENT",
+        description: "L'ÉLÉGANCE AU FÉMININ À TRAVERS NOS CHEMISES DÉLICATES.",
+        imageUrl: "/NewCollection/1.png"
+      },
+      "pantalons": {
+        title: "Pantalons",
+        subtitle: "CONFORT",
+        description: "PANTALONS ÉLÉGANTS ET CONFORTABLES POUR TOUS LES OCCASIONS.",
+        imageUrl: "/pcis/pantalons.png"
+      },
+      "pollo": {
+        title: "Pollo",
+        subtitle: "DÉCONTRACTÉ",
+        description: "POLLOS ÉLÉGANTS POUR UN STYLE DÉCONTRACTÉ.",
+        imageUrl: "/pcis/pollo.png"
       }
     },
     "femme": {
@@ -57,7 +81,7 @@ const sectionContent: Record<string, Record<string, Record<string, SectionConten
       "portefeuilles": {
         title: "Portefeuilles",
         subtitle: "CUIR",
-        description: "ARTISANAT TUNISIEN D'EXCELLENCE, FAÇONNÉ DANS LES PLUS BEAUX CUIRS ITALIENS.",
+        description: "- TUNISIEN D'EXCELLENCE, FAÇONNÉ DANS LES PLUS BEAUX CUIRS ITALIENS.",
         imageUrl: "/Menu/accessoires.png"
       },
       "ceintures": {
@@ -93,7 +117,7 @@ const sectionContent: Record<string, Record<string, Record<string, SectionConten
 export const getSectionContent = (type: string, category: string, itemgroup: string): SectionContent => {
   const defaultContent: SectionContent = {
     title: "Fiori Collection",
-    subtitle: "ARTISANAT",
+    subtitle: "-",
     description: "DÉCOUVREZ NOS CRÉATIONS EXCLUSIVES, FAÇONNÉES AVEC PASSION ET SAVOIR-FAIRE EN TUNISIE.",
     imageUrl: "/Articles/Main.png"
   };

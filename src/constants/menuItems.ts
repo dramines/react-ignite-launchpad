@@ -32,6 +32,7 @@ export const menuItems = [
     subItems: [
       { href: "/category/pret-a-porter/homme/costumes", title: "Costumes" },
       { href: "/category/pret-a-porter/homme/blazers", title: "Blazers" },
+      { href: "/category/pret-a-porter/homme/vestes", title: "Vestes" },
       { href: "/category/pret-a-porter/homme/chemises", title: "Chemises" },
       { href: "/category/pret-a-porter/homme/pantalons", title: "Pantalons" },
       { href: "/category/pret-a-porter/homme/pollo", title: "Polo" },
@@ -46,6 +47,8 @@ export const menuItems = [
       { href: "/category/accessoires/homme/ceintures", title: "Ceinture" },
       { href: "/category/accessoires/homme/cravates", title: "Cravate" },
       { href: "/category/accessoires/homme/mallettes", title: "Mallette" },
+      { href: "/category/accessoires/homme/porte-cartes", title: "Porte-cartes" },
+      { href: "/category/accessoires/homme/porte-cles", title: "Porte-clés" },
       { href: "/category/accessoires/femmes/sacs-a-main", title: "Sacs à main" },
     ],
   },

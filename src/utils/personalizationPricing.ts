@@ -10,7 +10,54 @@ export const PERSONALIZATION_PRICES: PersonalizationPricing = {
     price: 30,
     freeInPacks: true
   },
-  // Add more product groups here as needed
+  'costumes': {
+    price: 30,
+    freeInPacks: true
+  },
+  'blazers': {
+    price: 30,
+    freeInPacks: true
+  },
+  'pantalons': {
+    price: 30,
+    freeInPacks: true
+  },
+  'pollo': {
+    price: 30,
+    freeInPacks: true
+  },
+  'robes': {
+    price: 30,
+    freeInPacks: true
+  },
+  'vestes': {
+    price: 30,
+    freeInPacks: true
+  },
+  'portefeuilles': {
+    price: 30,
+    freeInPacks: true
+  },
+  'ceintures': {
+    price: 30,
+    freeInPacks: true
+  },
+  'mallettes': {
+    price: 30,
+    freeInPacks: true
+  },
+  'porte-cartes': {
+    price: 30,
+    freeInPacks: true
+  },
+  'porte-cles': {
+    price: 30,
+    freeInPacks: true
+  },
+  'sacs-a-main': {
+    price: 30,
+    freeInPacks: true
+  }
 };
 
 export const getPersonalizationPrice = (

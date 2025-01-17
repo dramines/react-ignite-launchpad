@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
@@ -10,6 +10,7 @@ import OrderItems from '@/components/order/OrderItems';
 import OrderSummary from '@/components/order/OrderSummary';
 import { useCart } from '@/components/cart/CartProvider';
 import { submitOrder } from '@/services/orderSubmissionApi';
+import WhatsAppPopup from '@/components/WhatsAppPopup';
 
 const OrderPreviewPage = () => {
   const { state } = useLocation();
@@ -17,7 +18,7 @@ const OrderPreviewPage = () => {
   const { toast } = useToast();
   const { hasNewsletterDiscount, calculateTotal, cartItems, clearCart } = useCart();
   const { subtotal, discount: newsletterDiscount, total } = calculateTotal();
-  const shipping = subtotal > 500 ? 0 : 7;
+  const shipping = subtotal > 299 ? 0 : 8;
   const finalTotal = total + shipping;
 
   if (!state?.orderDetails) {
@@ -66,6 +67,9 @@ const OrderPreviewPage = () => {
           />
         </motion.div>
       </div>
+      <Suspense fallback={null}>
+                      <WhatsAppPopup />
+   </Suspense>
       <Footer />
     </div>
   );
