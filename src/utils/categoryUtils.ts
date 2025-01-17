@@ -56,23 +56,32 @@ export const getAvailableCategories = (
   }
 
   if (packType === 'Pack Trio') {
-    // First slot must be ceinture
+    const hasPortefeuille = selectedItems.some(item => item.itemgroup_product === 'portefeuilles');
+    const hasCeinture = selectedItems.some(item => item.itemgroup_product === 'ceintures');
+    const hasPorteCles = selectedItems.some(item => item.itemgroup_product === 'porte-cles');
+
     if (selectedItems.length === 0) {
-      return [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }];
+      return [
+        { label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' },
+        { label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }
+      ];
     }
-    
-    // Second slot must be portefeuille
-    if (selectedItems.length === 1 && selectedItems[0].itemgroup_product === 'ceintures') {
-      return [{ label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }];
+
+    if (selectedItems.length === 1) {
+      if (!hasPortefeuille && !hasCeinture) {
+        return [{ label: 'Porte-clés', type: 'itemgroup', value: 'porte-cles' }];
+      }
+      return [
+        ...(hasPortefeuille ? [] : [{ label: 'Ceintures', type: 'itemgroup', value: 'ceintures' }]),
+        ...(hasCeinture ? [] : [{ label: 'Portefeuilles', type: 'itemgroup', value: 'portefeuilles' }]),
+        { label: 'Porte-clés', type: 'itemgroup', value: 'porte-cles' }
+      ];
     }
-    
-    // Third slot must be porte-clés, only if we have ceinture and portefeuille
-    if (selectedItems.length === 2 && 
-        selectedItems.some(item => item.itemgroup_product === 'ceintures') &&
-        selectedItems.some(item => item.itemgroup_product === 'portefeuilles')) {
+
+    if (selectedItems.length === 2 && !hasPorteCles) {
       return [{ label: 'Porte-clés', type: 'itemgroup', value: 'porte-cles' }];
     }
-    
+
     return [];
   }
 
