@@ -92,39 +92,32 @@ export const validatePackSelection = (selectedItems: Product[], containerCount: 
     }
 
     case 'Pack Trio': {
-      // Check if we have at least one portefeuille or ceinture
-      const hasPortefeuille = selectedItems.some(item => item.itemgroup_product === 'portefeuilles');
-      const hasCeinture = selectedItems.some(item => item.itemgroup_product === 'ceintures');
-      const hasPorteCles = selectedItems.some(item => item.itemgroup_product === 'porte-cles');
+      const hasCeinture = selectedItems.filter(item => item.itemgroup_product === 'ceintures').length === 1;
+      const hasPortefeuille = selectedItems.filter(item => item.itemgroup_product === 'portefeuilles').length === 1;
+      const hasPorteCles = selectedItems.filter(item => item.itemgroup_product === 'porte-cles').length === 1;
       
-      if (!hasPortefeuille && !hasCeinture) {
+      if (!hasCeinture) {
         toast({
           title: "Sélection invalide",
-          description: "Le Pack Trio doit contenir au moins un portefeuille ou une ceinture",
+          description: "Le Pack Trio doit contenir exactement une ceinture",
           variant: "destructive",
         });
         return false;
       }
 
-      // Check if we have exactly one porte-clés
+      if (!hasPortefeuille) {
+        toast({
+          title: "Sélection invalide",
+          description: "Le Pack Trio doit contenir exactement un portefeuille",
+          variant: "destructive",
+        });
+        return false;
+      }
+
       if (!hasPorteCles) {
         toast({
           title: "Sélection invalide",
-          description: "Le Pack Trio doit contenir un porte-clés",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Ensure we don't have more than one of each type
-      const portefeuilleCount = selectedItems.filter(item => item.itemgroup_product === 'portefeuilles').length;
-      const ceintureCount = selectedItems.filter(item => item.itemgroup_product === 'ceintures').length;
-      const porteClesCount = selectedItems.filter(item => item.itemgroup_product === 'porte-cles').length;
-
-      if (portefeuilleCount > 1 || ceintureCount > 1 || porteClesCount > 1) {
-        toast({
-          title: "Sélection invalide",
-          description: "Vous ne pouvez pas sélectionner plus d'un article du même type",
+          description: "Le Pack Trio doit contenir exactement un porte-clés",
           variant: "destructive",
         });
         return false;
