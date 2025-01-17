@@ -96,7 +96,7 @@ const MobileMenu = ({
                     items={[
                       { href: "/category/pret-a-porter/homme/costumes", title: "Costume", description: "Costumes élégants" },
                       { href: "/category/pret-a-porter/homme/blazers", title: "Blazer", description: "Blazers raffinés" },
-                      { href: "/category/pret-a-porter/homme/vestes", title: "Blazer", description: "Blazers raffinés" },
+                      { href: "/category/pret-a-porter/homme/vestes", title: "Vestes", description: "Vestes élégantes" },
                       { href: "/category/pret-a-porter/homme/chemises", title: "Chemise", description: "Chemises classiques" },
                       { href: "/category/pret-a-porter/homme/pantalons", title: "Pantalon", description: "Pantalons élégants" },
                       { href: "/category/pret-a-porter/homme/pollo", title: "Polo", description: "Polos élégants" }
