@@ -80,11 +80,15 @@ const ProductsSection = ({ isFromFooter = false }: ProductsSectionProps) => {
             productItemgroup: product.itemgroup_product ? normalizeString(product.itemgroup_product) : null
           });
 
-          // Special case: if we're in pret-a-porter/homme/vestes, show outlet blazers
-          if (normalizedType === 'pret-a-porter' && 
+          // Special case: if we're in pret-a-porter/homme/vestes OR outlet/homme/blazers, show outlet blazers
+          if ((normalizedType === 'pret-a-porter' && 
               normalizedCategory === 'homme' && 
               itemgroup && 
-              normalizeString(itemgroup) === 'vestes') {
+              normalizeString(itemgroup) === 'vestes') ||
+              (normalizedType === 'outlet' &&
+              normalizedCategory === 'homme' &&
+              itemgroup &&
+              normalizeString(itemgroup) === 'blazers')) {
             return product.type_product === 'outlet' && 
                    product.itemgroup_product === 'blazers' && 
                    product.category_product.toLowerCase() === 'homme';
