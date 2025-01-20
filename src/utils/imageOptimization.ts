@@ -1,60 +1,47 @@
 const imageCache = new Map<string, HTMLImageElement>();
-const videoCache = new Map<string, HTMLVideoElement>();
 
-export const preloadVideo = (src: string): Promise<void> => {
-  if (videoCache.has(src)) {
-    return Promise.resolve();
+export const optimizeImageUrl = (url: string, width: number = 800): string => {
+  // If it's already an optimized URL or not a valid URL, return as is
+  if (!url || url.includes('?w=') || !url.startsWith('http')) {
+    return url;
   }
 
-  return new Promise((resolve, reject) => {
-    const video = document.createElement('video');
-    video.preload = 'auto';
-    video.muted = true;
-    video.playsInline = true;
-    
-    video.onloadeddata = () => {
-      videoCache.set(src, video);
-      resolve();
-    };
-    video.onerror = reject;
-    
-    video.src = src;
-  });
+  // Add quality and width parameters
+  const separator = url.includes('?') ? '&' : '?';
+  return `${url}${separator}w=${width}&q=75`;
 };
 
-export const preloadImage = (src: string): Promise<void> => {
-  if (imageCache.has(src)) {
+export const preloadImage = (src: string, width: number = 800): Promise<void> => {
+  const optimizedSrc = optimizeImageUrl(src, width);
+  
+  if (imageCache.has(optimizedSrc)) {
     return Promise.resolve();
   }
 
   return new Promise((resolve, reject) => {
     const img = new Image();
     
-    // Set image loading attributes
-    img.loading = 'lazy';
-    img.decoding = 'async';
-    
-    // Add event listeners before setting src
     img.onload = () => {
-      imageCache.set(src, img);
+      imageCache.set(optimizedSrc, img);
       resolve();
     };
     img.onerror = reject;
     
+    // Set loading and decoding attributes
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    
     // Set source last
-    img.src = src;
+    img.src = optimizedSrc;
   });
 };
 
-export const getCachedImage = (src: string): HTMLImageElement | undefined => {
-  return imageCache.get(src);
-};
-
-// Generate srcSet for responsive images
 export const generateSrcSet = (src: string): string => {
+  if (!src) return '';
+  
   const sizes = [320, 640, 768, 1024, 1280];
   return sizes
-    .map(size => `${src} ${size}w`)
+    .map(size => `${optimizeImageUrl(src, size)} ${size}w`)
     .join(', ');
 };
 
@@ -63,20 +50,4 @@ export const clearImageCache = () => {
   if (imageCache.size > 100) {
     imageCache.clear();
   }
-};
-
-// Preload multiple images in order of priority
-export const preloadImages = async (srcs: string[], priority: boolean = false): Promise<void> => {
-  const promises = srcs.map(src => {
-    const img = new Image();
-    img.fetchPriority = priority ? 'high' : 'auto';
-    img.loading = priority ? 'eager' : 'lazy';
-    img.decoding = 'async';
-    img.src = src;
-    return new Promise<void>((resolve) => {
-      img.onload = () => resolve();
-    });
-  });
-
-  await Promise.all(promises);
 };

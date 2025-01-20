@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Product } from '../types/product';
 import { calculateFinalPrice, formatPrice } from '@/utils/priceCalculations';
 import { PenLine } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
+import { optimizeImageUrl, generateSrcSet } from '@/utils/imageOptimization';
 
 interface ProductCardProps {
   product: Product;
@@ -43,12 +44,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <div className={`w-full h-full transition-opacity duration-300 ${imageLoaded ? 'opacity-100' : 'opacity-0'}`}>
           {inView && (
             <img
-              src={product.image}
+              src={optimizeImageUrl(product.image, 400)}
+              srcSet={generateSrcSet(product.image)}
               alt={product.name}
               className="w-full h-full object-contain mix-blend-normal"
               loading="lazy"
               decoding="async"
-              fetchPriority="auto"
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               onLoad={() => setImageLoaded(true)}
               onError={() => setImageLoaded(true)}
