@@ -1,7 +1,7 @@
 import React from 'react';
 import { Info, ArrowRight } from 'lucide-react';
 
-interface ProductDetailContentProps {
+export interface ProductDetailContentProps {
   description: string;
   material: string;
   color: string;
@@ -9,7 +9,6 @@ interface ProductDetailContentProps {
 }
 
 const ProductDetailContent = ({ description, material, color, id }: ProductDetailContentProps) => {
-  // Split the description by \n and map each line to a paragraph with proper spacing
   const formattedDescription = description.split('\\n').map((line, index) => (
     <p key={index} className="text-gray-600 py-1">{line.trim()}</p>
   ));

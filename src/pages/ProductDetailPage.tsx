@@ -1,76 +1,16 @@
-import React, { Suspense, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { fetchSingleProduct } from '@/services/productsApi';
-import { motion } from 'framer-motion';
-import RelatedProducts from '@/components/product-detail/RelatedProducts';
+import React, { Suspense } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ProductDetailLayout from '@/components/product-detail/ProductDetailLayout';
 import ProductDetailContainer from '@/components/product-detail/ProductDetailContainer';
-import CheckoutConfirmationModal from '@/components/modals/CheckoutConfirmationModal';
 import WhatsAppPopup from '@/components/WhatsAppPopup';
 
 const ProductDetailPage = () => {
-  const { id } = useParams();
   const navigate = useNavigate();
-  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
-  const [addedProductName, setAddedProductName] = useState('');
-
-  const { data: product, isLoading, isError } = useQuery({
-    queryKey: ['product', id],
-    queryFn: () => fetchSingleProduct(Number(id)),
-    staleTime: 30000, // Consider data stale after 30 seconds
-    refetchOnWindowFocus: true, // Refetch when window regains focus
-  });
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#700100]"></div>
-      </div>
-    );
-  }
-
-  if (isError || !product) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Produit non trouvé</h2>
-          <button onClick={() => navigate('/')} className="text-[#700100] hover:underline">
-            Retour à l'accueil
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const handleProductAdded = (productName: string) => {
-    setAddedProductName(productName);
-    setShowCheckoutModal(true);
-  };
 
   return (
     <ProductDetailLayout onBack={() => navigate(-1)}>
-      <ProductDetailContainer 
-        product={product} 
-        onProductAdded={handleProductAdded}
-      />
-      
-      <motion.section 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="mt-8 mb-8"
-      >
-        <RelatedProducts currentProduct={product} />
-      </motion.section>
-      
-      <CheckoutConfirmationModal
-        isOpen={showCheckoutModal}
-        onClose={() => setShowCheckoutModal(false)}
-        productName={addedProductName}
-      />
-
-      <Suspense fallback={null}>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ProductDetailContainer />
         <WhatsAppPopup />
       </Suspense>
     </ProductDetailLayout>

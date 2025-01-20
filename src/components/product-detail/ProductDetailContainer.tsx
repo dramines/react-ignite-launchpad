@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchProductById } from '@/services/productsApi';
+import { fetchSingleProduct } from '@/services/productsApi';
 import ProductDetailSkeleton from './ProductDetailSkeleton';
 import ProductDetailContent from './ProductDetailContent';
 import { Product } from '@/types/product';
@@ -16,15 +16,21 @@ const ProductDetailContainer = () => {
 
   const { data: product, isLoading, error } = useQuery<Product>({
     queryKey: ['product', id],
-    queryFn: () => fetchProductById(id as string),
+    queryFn: () => fetchSingleProduct(Number(id)),
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 
   useEffect(() => {
-    if (product?.sizes && product.sizes.length > 0) {
-      setSelectedSize(product.sizes[0]);
+    if (product) {
+      // Find the first available size
+      const sizes = Object.entries(product.sizes)
+        .filter(([_, quantity]) => quantity > 0)
+        .map(([size]) => size);
+      if (sizes.length > 0) {
+        setSelectedSize(sizes[0]);
+      }
     }
   }, [product]);
 
@@ -64,19 +70,14 @@ const ProductDetailContainer = () => {
   };
 
   return (
-    <ProductDetailContent
-      product={product}
-      selectedSize={selectedSize}
-      selectedQuantity={selectedQuantity}
-      isPersonalized={isPersonalized}
-      personalizationText={personalizationText}
-      hasDiscount={hasDiscount}
-      totalPrice={totalPrice}
-      onQuantityChange={handleQuantityChange}
-      onSizeChange={handleSizeChange}
-      onPersonalizationChange={handlePersonalizationChange}
-      onPersonalizationTextChange={handlePersonalizationTextChange}
-    />
+    <div className="container mx-auto px-4 py-8">
+      <ProductDetailContent
+        description={product.description}
+        material={product.material}
+        color={product.color}
+        id={product.id}
+      />
+    </div>
   );
 };
 
