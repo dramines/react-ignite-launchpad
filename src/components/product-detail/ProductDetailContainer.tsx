@@ -15,6 +15,7 @@ import { canItemBePersonalized, getPersonalizationMessage } from '@/utils/person
 import { getPersonalizations } from '@/utils/personalizationStorage';
 import { calculateFinalPrice } from '@/utils/productStorage';
 import { needsSizeSelection, getDefaultSize } from '@/utils/sizeUtils';
+import { useInView } from 'react-intersection-observer';
 
 interface ProductDetailContainerProps {
   product: Product;
@@ -61,7 +62,7 @@ const ProductDetailContainer = ({ product, onProductAdded }: ProductDetailContai
       return;
     }
 
-    const availableStock = requiresSizeSelection ? getStockForSize(product, selectedSize) : product.quantity;
+    const availableStock = requiresSizeSelection ? getStockForSize(product, selectedSize) : Number(product.quantity);
     if (quantity > availableStock) {
       toast({
         title: "Stock insuffisant",

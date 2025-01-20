@@ -2,6 +2,7 @@ import { Product } from '@/types/product';
 import { toast } from "@/hooks/use-toast";
 
 export const validatePackSelection = (selectedItems: Product[], containerCount: number, packType: string) => {
+  
   if (selectedItems.length !== containerCount) {
     toast({
       title: "Sélection incomplète",
@@ -179,9 +180,18 @@ export const validatePackSelection = (selectedItems: Product[], containerCount: 
     }
 
     case 'Pack Duo': {
-      const duoHasPortefeuille = selectedItems.some(item => item.itemgroup_product === 'Portefeuilles');
-      const duoHasCeinture = selectedItems.some(item => item.itemgroup_product === 'Ceintures');
-      if (!duoHasPortefeuille || !duoHasCeinture) {
+      
+      const hasPortefeuille = selectedItems.some(item => 
+        item.itemgroup_product.toLowerCase() === 'portefeuilles' || 
+        item.itemgroup_product.toLowerCase() === 'portefeuille'
+      );
+      
+      const hasCeinture = selectedItems.some(item => 
+        item.itemgroup_product.toLowerCase() === 'ceintures' || 
+        item.itemgroup_product.toLowerCase() === 'ceinture'
+      );
+
+      if (!hasPortefeuille || !hasCeinture) {
         toast({
           title: "Sélection invalide",
           description: "Le Pack Duo doit contenir 1 portefeuille et 1 ceinture",
@@ -193,8 +203,18 @@ export const validatePackSelection = (selectedItems: Product[], containerCount: 
     }
 
     case 'Pack Mini Duo': {
-      const hasPorteCartes = selectedItems.some(item => item.itemgroup_product === 'Porte-cartes');
-      const hasPorteCles = selectedItems.some(item => item.itemgroup_product === 'Porte-clés');
+      
+      const hasPorteCartes = selectedItems.some(item => 
+        item.itemgroup_product.toLowerCase() === 'porte-cartes' || 
+        item.itemgroup_product.toLowerCase() === 'porte-carte'
+      );
+      
+      const hasPorteCles = selectedItems.some(item => 
+        item.itemgroup_product.toLowerCase() === 'porte-cles' || 
+        item.itemgroup_product.toLowerCase() === 'porte-clé' ||
+        item.itemgroup_product.toLowerCase() === 'porte-cle'
+      );
+
       if (!hasPorteCartes || !hasPorteCles) {
         toast({
           title: "Sélection invalide",

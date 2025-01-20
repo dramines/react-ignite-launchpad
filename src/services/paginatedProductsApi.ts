@@ -3,7 +3,7 @@ import { Product } from '../types/product';
 
 const BASE_URL = 'https://www.fioriforyou.com/backfiori';
 
-interface ApiResponse {
+interface PaginatedApiResponse {
   status: string;
   count: number;
   products: {
@@ -38,16 +38,39 @@ interface ApiResponse {
     color_product: string;
     createdate_product: string;
   }[];
+  totalPages?: number;
+  currentPage?: number;
 }
 
-export const fetchAllProducts = async (): Promise<Product[]> => {
+export const fetchPaginatedProducts = async (
+  page: number = 1, 
+  limit: number = 10,
+  nbItems?: number
+): Promise<{
+  products: Product[];
+  totalPages?: number;
+  currentPage?: number;
+}> => {
   try {
-    const response = await axios.get<ApiResponse>(`${BASE_URL}/get_all_articles.php`);
+    console.log('Fetching products with params:', { page, limit, nbItems });
+    
+    const url = new URL(`${BASE_URL}/get_all_articles.php`);
+    url.searchParams.append('page', page.toString());
+    url.searchParams.append('limit', limit.toString());
+    
+    // Only add nb_items_passed if nbItems is provided
+    if (nbItems) {
+      url.searchParams.append('nb_items_passed', nbItems.toString());
+      console.log('Using nb_items_passed:', nbItems);
+    }
+
+    console.log('Final API URL:', url.toString());
+
+    const response = await axios.get<PaginatedApiResponse>(url.toString());
     
     if (response.data.status === 'success') {
-      return response.data.products
+      const products = response.data.products
         .filter(product => 
-          // Filter out products with zero or invalid quantity
           product.qnty_product !== "0" && 
           parseInt(product.qnty_product) > 0
         )
@@ -68,6 +91,9 @@ export const fetchAllProducts = async (): Promise<Product[]> => {
           relatedProducts: product.related_products,
           colorProduct: product.color_product,
           discount_product: product.discount_product || "",
+          type_product: product.type_product,
+          category_product: product.category_product,
+          itemgroup_product: product.itemgroup_product,
           sizes: {
             s: parseInt(product.s_size) || 0,
             m: parseInt(product.m_size) || 0,
@@ -83,10 +109,15 @@ export const fetchAllProducts = async (): Promise<Product[]> => {
             "58": parseInt(product["58_size"]) || 0,
           },
           quantity: parseInt(product.qnty_product) || 0,
-          type_product: product.type_product,
-          category_product: product.category_product,
-          itemgroup_product: product.itemgroup_product,
         }));
+
+      console.log('Fetched products count:', products.length);
+
+      return {
+        products,
+        totalPages: response.data.totalPages,
+        currentPage: response.data.currentPage
+      };
     }
     throw new Error(`Failed to fetch products: ${response.data.status}`);
   } catch (error) {
