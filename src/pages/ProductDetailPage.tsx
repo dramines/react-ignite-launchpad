@@ -1,7 +1,7 @@
 import React, { Suspense, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { fetchAllProducts } from '@/services/productsApi';
+import { fetchSingleProduct } from '@/services/productsApi';
 import { motion } from 'framer-motion';
 import RelatedProducts from '@/components/product-detail/RelatedProducts';
 import ProductDetailLayout from '@/components/product-detail/ProductDetailLayout';
@@ -15,9 +15,11 @@ const ProductDetailPage = () => {
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [addedProductName, setAddedProductName] = useState('');
 
-  const { data: products, isLoading } = useQuery({
-    queryKey: ['products'],
-    queryFn: fetchAllProducts,
+  const { data: product, isLoading, isError } = useQuery({
+    queryKey: ['product', id],
+    queryFn: () => fetchSingleProduct(Number(id)),
+    staleTime: 30000, // Consider data stale after 30 seconds
+    refetchOnWindowFocus: true, // Refetch when window regains focus
   });
 
   if (isLoading) {
@@ -28,9 +30,7 @@ const ProductDetailPage = () => {
     );
   }
 
-  const product = products?.find(p => p.id === Number(id));
-  
-  if (!product) {
+  if (isError || !product) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
@@ -47,14 +47,6 @@ const ProductDetailPage = () => {
     setAddedProductName(productName);
     setShowCheckoutModal(true);
   };
-
-  // Get related products if any are specified
-  const relatedProductIds = product.relatedProducts
-    ? product.relatedProducts.split(',').map(Number)
-    : [];
-  const relatedProductsList = products?.filter(p => 
-    relatedProductIds.includes(p.id)
-  ) || [];
 
   return (
     <ProductDetailLayout onBack={() => navigate(-1)}>
@@ -77,9 +69,10 @@ const ProductDetailPage = () => {
         onClose={() => setShowCheckoutModal(false)}
         productName={addedProductName}
       />
-        <Suspense fallback={null}>
-                      <WhatsAppPopup />
-   </Suspense>
+
+      <Suspense fallback={null}>
+        <WhatsAppPopup />
+      </Suspense>
     </ProductDetailLayout>
   );
 };
