@@ -1,15 +1,32 @@
 const imageCache = new Map<string, HTMLImageElement>();
 const videoCache = new Map<string, HTMLVideoElement>();
 
-export const optimizeImageUrl = (url: string, width: number = 800): string => {
+// Quality levels for different image sizes
+const QUALITY_LEVELS = {
+  thumbnail: 40,  // Very low quality for thumbnails
+  preview: 60,    // Medium quality for previews
+  full: 75       // Higher quality for full view
+};
+
+export const optimizeImageUrl = (url: string, width: number = 800, quality?: 'thumbnail' | 'preview' | 'full'): string => {
   // If it's already an optimized URL or not a valid URL, return as is
   if (!url || url.includes('?w=') || !url.startsWith('http')) {
     return url;
   }
 
+  // Determine quality based on width and requested quality level
+  let imageQuality = QUALITY_LEVELS.preview; // default
+  if (quality) {
+    imageQuality = QUALITY_LEVELS[quality];
+  } else if (width <= 200) {
+    imageQuality = QUALITY_LEVELS.thumbnail;
+  } else if (width >= 800) {
+    imageQuality = QUALITY_LEVELS.full;
+  }
+
   // Add quality and width parameters
   const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}w=${width}&q=75`;
+  return `${url}${separator}w=${width}&q=${imageQuality}&blur=1`;
 };
 
 export const preloadVideo = (src: string): Promise<void> => {
@@ -33,8 +50,8 @@ export const preloadVideo = (src: string): Promise<void> => {
   });
 };
 
-export const preloadImage = (src: string, width: number = 800): Promise<void> => {
-  const optimizedSrc = optimizeImageUrl(src, width);
+export const preloadImage = (src: string, width: number = 800, quality?: 'thumbnail' | 'preview' | 'full'): Promise<void> => {
+  const optimizedSrc = optimizeImageUrl(src, width, quality);
   
   if (imageCache.has(optimizedSrc)) {
     return Promise.resolve();
@@ -49,21 +66,20 @@ export const preloadImage = (src: string, width: number = 800): Promise<void> =>
     };
     img.onerror = reject;
     
-    // Set loading and decoding attributes
     img.loading = 'lazy';
     img.decoding = 'async';
     
-    // Set source last
     img.src = optimizedSrc;
   });
 };
 
-export const generateSrcSet = (src: string): string => {
+export const generateSrcSet = (src: string, quality?: 'thumbnail' | 'preview' | 'full'): string => {
   if (!src) return '';
   
-  const sizes = [320, 640, 768, 1024, 1280];
+  // Optimized sizes for better performance
+  const sizes = [160, 320, 480, 640, 800];
   return sizes
-    .map(size => `${optimizeImageUrl(src, size)} ${size}w`)
+    .map(size => `${optimizeImageUrl(src, size, quality)} ${size}w`)
     .join(', ');
 };
 
