@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useCart } from './cart/CartProvider';
 import axios from 'axios';
 import InfoModal from './modals/InfoModal';
@@ -73,11 +73,11 @@ const Footer = () => {
       console.error('Erreur d\'inscription à la newsletter:', error);
       const errorMessage = error.response?.data?.message || error.message;
       
-      if (errorMessage.includes('already exists')) {
+      if (errorMessage.includes('already exists') || errorMessage.includes('Duplicate entry')) {
         toast({
           variant: "destructive",
-          title: "Déjà inscrit",
-          description: "Vous êtes déjà inscrit à notre newsletter.",
+          title: "Email déjà inscrit",
+          description: "Cette adresse email est déjà inscrite à notre newsletter.",
           duration: 3000,
         });
       } else {
