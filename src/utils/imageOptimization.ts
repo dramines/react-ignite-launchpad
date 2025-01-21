@@ -6,7 +6,7 @@ const QUALITY_LEVELS = {
 };
 
 export const optimizeImageUrl = (url: string, width: number = 800, quality?: 'thumbnail' | 'preview' | 'full'): string => {
-  if (!url || !url.startsWith('http')) {
+  if (!url || url.includes('?w=') || !url.startsWith('http')) {
     return url;
   }
 
@@ -19,10 +19,8 @@ export const optimizeImageUrl = (url: string, width: number = 800, quality?: 'th
     imageQuality = QUALITY_LEVELS.full;
   }
 
-  // Add timestamp to prevent caching
-  const timestamp = new Date().getTime();
   const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}w=${width}&q=${imageQuality}&t=${timestamp}`;
+  return `${url}${separator}w=${width}&q=${imageQuality}&blur=1`;
 };
 
 export const preloadVideo = (src: string): Promise<void> => {
@@ -38,10 +36,7 @@ export const preloadVideo = (src: string): Promise<void> => {
     };
     video.onerror = reject;
     
-    // Add timestamp to prevent caching
-    const timestamp = new Date().getTime();
-    const separator = src.includes('?') ? '&' : '?';
-    video.src = `${src}${separator}t=${timestamp}`;
+    video.src = src;
   });
 };
 
@@ -66,9 +61,8 @@ export const preloadImage = (src: string, width: number = 800, quality?: 'thumbn
 export const generateSrcSet = (src: string, quality?: 'thumbnail' | 'preview' | 'full'): string => {
   if (!src) return '';
   
-  const timestamp = new Date().getTime();
   const sizes = [160, 320, 480, 640, 800];
   return sizes
-    .map(size => `${optimizeImageUrl(src, size, quality)}&t=${timestamp} ${size}w`)
+    .map(size => `${optimizeImageUrl(src, size, quality)} ${size}w`)
     .join(', ');
 };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { fetchAllProducts } from '@/services/productsApi';
 import { Input } from "@/components/ui/input";
@@ -12,6 +12,9 @@ import AddItemDialog from './dialogs/AddItemDialog';
 import { playTickSound } from '@/utils/audio';
 import { toast } from '@/hooks/use-toast';
 import { getAvailableCategories } from '@/utils/categoryUtils';
+import { preloadImage } from '@/utils/imageOptimization';
+import { motion } from 'framer-motion';
+import { Loader2 } from 'lucide-react';
 
 interface ProductSelectionPanelProps {
   onItemDrop: (item: Product, size: string, personalization: string) => void;
@@ -26,6 +29,7 @@ const ProductSelectionPanel = ({
   selectedContainerIndex,
   selectedItems 
 }: ProductSelectionPanelProps) => {
+  const [isImagesLoaded, setIsImagesLoaded] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -93,6 +97,37 @@ const ProductSelectionPanel = ({
     }
   });
 
+  // Preload images
+  useEffect(() => {
+    if (products && products.length > 0 && !isImagesLoaded) {
+      const preloadImages = async () => {
+        try {
+          console.log('Starting to preload product images');
+          
+          // First preload thumbnails
+          await Promise.all(
+            products.map(product => preloadImage(product.image, 160, 'thumbnail'))
+          );
+          console.log('Thumbnails preloaded successfully');
+          
+          // Then preload full-size images
+          await Promise.all(
+            products.map(product => preloadImage(product.image, 400, 'preview'))
+          );
+          console.log('Full-size images preloaded successfully');
+          
+          setIsImagesLoaded(true);
+        } catch (error) {
+          console.error('Error preloading images:', error);
+          // Still set images as loaded to prevent blocking indefinitely
+          setIsImagesLoaded(true);
+        }
+      };
+
+      preloadImages();
+    }
+  }, [products]);
+
   const handleProductSelect = (product: Product) => {
     if (isMobile) {
       setSelectedProduct(product);
@@ -125,6 +160,38 @@ const ProductSelectionPanel = ({
       });
     }
   };
+
+  if (isLoading || !isImagesLoaded) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+        <div className="relative">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-red-600/30 to-red-900/30 blur-xl" />
+          <motion.div 
+            className="relative backdrop-blur-md rounded-full p-8 bg-gradient-to-b from-white/10 to-transparent border border-white/10 shadow-2xl"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              rotate: [0, 360]
+            }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              ease: "linear"
+            }}
+          >
+            <Loader2 className="w-12 h-12 text-white animate-spin" />
+          </motion.div>
+        </div>
+        <motion.p 
+          className="absolute bottom-1/4 text-white text-xl font-light"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          Chargement des produits...
+        </motion.p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white/90 backdrop-blur-lg rounded-xl shadow-xl p-6 border border-white/20 h-[90%] flex flex-col">
