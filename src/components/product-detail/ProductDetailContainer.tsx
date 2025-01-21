@@ -5,6 +5,7 @@ import { fetchSingleProduct } from '@/services/productsApi';
 import ProductDetailSkeleton from './ProductDetailSkeleton';
 import ProductDetailContent from './ProductDetailContent';
 import { Product } from '@/types/product';
+import { preloadImage } from '@/utils/imageOptimization';
 
 const ProductDetailContainer = () => {
   const { id } = useParams<{ id: string }>();
@@ -20,6 +21,39 @@ const ProductDetailContainer = () => {
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
+
+  // Preload images while showing loading spinner
+  useEffect(() => {
+    if (product) {
+      const preloadProductImages = async () => {
+        console.log('Starting to preload product images');
+        const images = [
+          product.image,
+          product.image2,
+          product.image3,
+          product.image4,
+        ].filter(Boolean) as string[];
+
+        try {
+          // First preload thumbnails for quick display
+          await Promise.all(
+            images.map(image => preloadImage(image, 160, 'thumbnail'))
+          );
+          console.log('Thumbnails preloaded successfully');
+
+          // Then preload full-size images
+          await Promise.all(
+            images.map(image => preloadImage(image, 800, 'full'))
+          );
+          console.log('Full-size images preloaded successfully');
+        } catch (error) {
+          console.error('Error preloading images:', error);
+        }
+      };
+
+      preloadProductImages();
+    }
+  }, [product]);
 
   useEffect(() => {
     if (product) {
