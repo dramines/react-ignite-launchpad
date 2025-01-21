@@ -2,6 +2,9 @@ import React, { useState, useEffect, Suspense, useTransition } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Skeleton } from "@/components/ui/skeleton";
 import MainNavbarIndex from '@/components/MainNavbarIndex';
+import { useQuery } from '@tanstack/react-query';
+import { fetchAllProducts } from '../services/productsApi';
+import { preloadImage } from '@/utils/imageOptimization';
 
 const TopNavbar = React.lazy(() => import('../components/TopNavbar'));
 const BrandNavbar = React.lazy(() => import('../components/BrandNavbar'));
@@ -27,15 +30,44 @@ const LoadingFallback = () => (
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(() => {
-    // Check if this is the first visit
     const hasVisited = sessionStorage.getItem('hasVisitedIndex');
     return !hasVisited;
   });
   const [isInView, setIsInView] = useState(false);
   const [isPending, startTransition] = useTransition();
 
+  // Start preloading products while loading screen is shown
+  const { data: products } = useQuery({
+    queryKey: ['products'],
+    queryFn: fetchAllProducts,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10, // 10 minutes
+  });
+
+  // Preload product images
   useEffect(() => {
-    // Mark that user has visited the index page
+    if (products) {
+      const preloadProducts = async () => {
+        const productImages = products
+          .slice(0, 10) // Preload first 10 products
+          .map(product => product.image);
+
+        // Preload thumbnails first
+        await Promise.all(
+          productImages.map(image => preloadImage(image, 160, 'thumbnail'))
+        );
+
+        // Then preload full-size images
+        await Promise.all(
+          productImages.map(image => preloadImage(image, 400, 'preview'))
+        );
+      };
+
+      preloadProducts().catch(console.error);
+    }
+  }, [products]);
+
+  useEffect(() => {
     sessionStorage.setItem('hasVisitedIndex', 'true');
     
     const handleScroll = () => {
