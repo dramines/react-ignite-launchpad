@@ -51,10 +51,10 @@ const transformProductData = (productData: ApiResponse['products'][0]): Product 
   material: productData.type_product,
   color: productData.color_product,
   price: parseFloat(productData.price_product) || 0.0,
-  image: `${BASE_URL}/${productData.img_product}`,
-  image2: productData.img2_product ? `${BASE_URL}/${productData.img2_product}` : undefined,
-  image3: productData.img3_product ? `${BASE_URL}/${productData.img3_product}` : undefined,
-  image4: productData.img4_product ? `${BASE_URL}/${productData.img4_product}` : undefined,
+  image: `${BASE_URL}/${productData.img_product}?format=webp&quality=70`,
+  image2: productData.img2_product ? `${BASE_URL}/${productData.img2_product}?format=webp&quality=70` : undefined,
+  image3: productData.img3_product ? `${BASE_URL}/${productData.img3_product}?format=webp&quality=70` : undefined,
+  image4: productData.img4_product ? `${BASE_URL}/${productData.img4_product}?format=webp&quality=70` : undefined,
   description: productData.description_product,
   status: productData.status_product,
   reference: productData.reference_product,
@@ -84,16 +84,15 @@ const transformProductData = (productData: ApiResponse['products'][0]): Product 
 
 export const fetchAllProducts = async (): Promise<Product[]> => {
   try {
-    const response = await axios.get<ApiResponse>(`${BASE_URL}/get_all_articles.php`);
-    
+    const timestamp = new Date().getTime(); // Add timestamp to prevent caching
+    const response = await axios.get<ApiResponse>(`${BASE_URL}/get_all_articles.php?timestamp=${timestamp}`);
+
     if (response.data.status === 'success') {
       return response.data.products
-        .filter(product => 
-          product.qnty_product !== "0" && 
-          parseInt(product.qnty_product) > 0
-        )
+        .filter(product => product.qnty_product !== "0" && parseInt(product.qnty_product) > 0)
         .map(transformProductData);
     }
+
     throw new Error(`Failed to fetch products: ${response.data.status}`);
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -103,13 +102,15 @@ export const fetchAllProducts = async (): Promise<Product[]> => {
 
 export const fetchSingleProduct = async (productId: number): Promise<Product> => {
   try {
+    const timestamp = new Date().getTime(); // Add timestamp to prevent caching
     const response = await axios.get<SingleProductResponse>(
-      `${BASE_URL}/get_single_product.php?id_product=${productId}`
+      `${BASE_URL}/get_single_product.php?id_product=${productId}&timestamp=${timestamp}`
     );
-    
+
     if (response.data.status === 'success' && response.data.product) {
       return transformProductData(response.data.product);
     }
+
     throw new Error(`Failed to fetch product: ${response.data.status}`);
   } catch (error) {
     console.error('Error fetching single product:', error);

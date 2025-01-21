@@ -9,8 +9,8 @@ import { useInView } from "react-intersection-observer";
 import { preloadImage, optimizeImageUrl } from "@/utils/imageOptimization";
 
 // Explicitly define constants for product limits
-const PRODUCTS_PER_PAGE = 7;
-const INDEX_PRODUCTS_LIMIT = 7;
+const PRODUCTS_PER_PAGE = 10;
+const INDEX_PRODUCTS_LIMIT = 10;
 
 const Products = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);

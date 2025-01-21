@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Button } from './ui/button';
 import { Link } from 'react-router-dom';
-import { preloadVideo } from '../utils/imageOptimization';
 
 const VIDEO_URL = "https://www.fioriforyou.com/apis/videos/newcollection.mp4";
 
@@ -10,24 +9,20 @@ const NewCollection = () => {
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.preload = "auto";
       videoRef.current.playbackRate = 1.2;
-      
-      const initializeVideo = async () => {
+
+      const playVideo = async () => {
         try {
-          // Preload the video
-          await preloadVideo(VIDEO_URL);
-          
-          // Play video after preloading
+          // Play the video directly
           if (videoRef.current) {
             await videoRef.current.play();
           }
         } catch (error) {
-          console.error("Video initialization failed:", error);
+          console.error("Video playback failed:", error);
         }
       };
-      
-      initializeVideo();
+
+      playVideo();
     }
 
     // Cleanup function
@@ -51,7 +46,6 @@ const NewCollection = () => {
               loop
               muted
               playsInline
-              preload="auto"
               className="w-full h-[345px] object-cover"
             >
               <source
@@ -79,7 +73,7 @@ const NewCollection = () => {
                   />
                 </div>
               </div>
-              
+
               {/* Two smaller images stacked on the right */}
               <div className="w-1/2 flex flex-col gap-2 h-full">
                 <div className="h-1/2 overflow-hidden">
@@ -118,7 +112,6 @@ const NewCollection = () => {
               loop
               muted
               playsInline
-              preload="auto"
               className="w-full h-full object-cover"
             >
               <source
