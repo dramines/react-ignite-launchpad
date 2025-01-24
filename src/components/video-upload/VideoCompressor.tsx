@@ -1,11 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { Upload, Video, FileVideo } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 
 const VideoCompressor = () => {
   const [loaded, setLoaded] = useState(false);
@@ -18,18 +17,16 @@ const VideoCompressor = () => {
   
   const ffmpegRef = useRef(new FFmpeg());
   const messageRef = useRef<HTMLParagraphElement>(null);
-  const navigate = useNavigate();
   const { toast } = useToast();
 
   const load = async () => {
     const ffmpeg = ffmpegRef.current;
     try {
-      console.log('Loading FFmpeg...');
       setLoadingMessage('Downloading FFmpeg...');
       const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
       
       ffmpeg.on('log', ({ message }) => {
-        console.log('FFmpeg Log:', message);
+        console.log(message);
         if (messageRef.current) {
           messageRef.current.innerHTML = message;
         }
@@ -37,7 +34,6 @@ const VideoCompressor = () => {
 
       ffmpeg.on('progress', ({ progress, time }) => {
         const percentage = Math.round(progress * 100);
-        console.log('Compression progress:', percentage);
         setProgress(percentage);
         setLoadingMessage(`Processing: ${percentage}% (${(time / 1000000).toFixed(1)}s)`);
       });
@@ -49,9 +45,9 @@ const VideoCompressor = () => {
       
       setLoaded(true);
       setLoadingMessage('');
-      console.log('FFmpeg loaded successfully');
     } catch (error) {
       console.error('Error loading FFmpeg:', error);
+      setLoadingMessage('Failed to load FFmpeg. Please refresh and try again.');
       toast({
         variant: "destructive",
         title: "Error",
@@ -74,7 +70,6 @@ const VideoCompressor = () => {
     const ffmpeg = ffmpegRef.current;
     if (!loaded) {
       toast({
-        variant: "destructive",
         title: "Not Ready",
         description: "Please wait for FFmpeg to load"
       });
@@ -111,33 +106,22 @@ const VideoCompressor = () => {
       const blob = new Blob([data], { type: 'video/mp4' });
       setCompressedSize(blob.size);
       
-      const compressedFile = new File([blob], file.name, { type: 'video/mp4' });
-      
-      // Store the compressed file in localStorage temporarily
-      const fileReader = new FileReader();
-      fileReader.onload = function(e) {
-        if (e.target?.result) {
-          localStorage.setItem('compressedVideo', JSON.stringify({
-            name: file.name,
-            size: compressedFile.size,
-            data: e.target.result
-          }));
-          
-          toast({
-            title: "Success",
-            description: "Video compressed successfully!"
-          });
-          
-          // Navigate back to the videos page
-          navigate('/app/upload');
-        }
-      };
-      fileReader.readAsDataURL(compressedFile);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `compressed-${file.name}`;
+      a.click();
+      URL.revokeObjectURL(url);
       
       setLoadingMessage('Compression complete!');
       setProgress(100);
+      toast({
+        title: "Success",
+        description: "Video compressed successfully!"
+      });
     } catch (error) {
       console.error('Error during compression:', error);
+      setLoadingMessage('Error compressing video. Please try again.');
       toast({
         variant: "destructive",
         title: "Error",
@@ -148,7 +132,7 @@ const VideoCompressor = () => {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setVideo(file);
@@ -156,9 +140,8 @@ const VideoCompressor = () => {
       setCompressedSize(0);
       setProgress(0);
       setLoadingMessage('');
-      compressVideo(file);
     }
-  };
+  }, []);
 
   const formatSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
@@ -225,6 +208,22 @@ const VideoCompressor = () => {
                   </div>
                 </div>
               )}
+
+              <Button
+                onClick={() => video && compressVideo(video)}
+                disabled={compressing || !loaded}
+                className="w-full"
+                variant={compressing || !loaded ? "secondary" : "default"}
+              >
+                {compressing ? (
+                  <span className="flex items-center justify-center">
+                    <Video className="animate-spin -ml-1 mr-3 h-5 w-5" />
+                    {loadingMessage || 'Compressing...'}
+                  </span>
+                ) : (
+                  'Compress Video'
+                )}
+              </Button>
             </div>
           )}
         </div>
