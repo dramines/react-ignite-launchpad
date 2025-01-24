@@ -2,9 +2,9 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { Upload, Video, FileVideo } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/hooks/use-toast';
 
 const VideoCompressor = () => {
   const [loaded, setLoaded] = useState(false);
@@ -14,16 +14,24 @@ const VideoCompressor = () => {
   const [originalSize, setOriginalSize] = useState<number>(0);
   const [compressedSize, setCompressedSize] = useState<number>(0);
   const [loadingMessage, setLoadingMessage] = useState('Loading FFmpeg...');
+  const [isLoading, setIsLoading] = useState(true);
   
-  const ffmpegRef = useRef(new FFmpeg());
+  const ffmpegRef = useRef<FFmpeg | null>(null);
   const messageRef = useRef<HTMLParagraphElement>(null);
   const { toast } = useToast();
 
   const load = async () => {
-    const ffmpeg = ffmpegRef.current;
     try {
-      console.log('Loading FFmpeg...');
+      console.log('Starting FFmpeg load...');
       setLoadingMessage('Downloading FFmpeg...');
+      
+      // Only create new FFmpeg instance if none exists
+      if (!ffmpegRef.current) {
+        console.log('Creating new FFmpeg instance');
+        ffmpegRef.current = new FFmpeg();
+      }
+      
+      const ffmpeg = ffmpegRef.current;
       const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
       
       // Add logging for debugging
@@ -42,7 +50,7 @@ const VideoCompressor = () => {
         setLoadingMessage(`Processing: ${percentage}% (${(time / 1000000).toFixed(1)}s)`);
       });
 
-      // Load FFmpeg with correct URLs
+      console.log('Loading FFmpeg with URLs...');
       await ffmpeg.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
@@ -51,6 +59,7 @@ const VideoCompressor = () => {
       console.log('FFmpeg loaded successfully');
       setLoaded(true);
       setLoadingMessage('');
+      setIsLoading(false);
     } catch (error) {
       console.error('Error loading FFmpeg:', error);
       setLoadingMessage('Failed to load FFmpeg. Please refresh and try again.');
@@ -59,15 +68,28 @@ const VideoCompressor = () => {
         title: "Error",
         description: "Failed to load FFmpeg. Please refresh and try again."
       });
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    load();
+    let mounted = true;
+
+    const loadFFmpeg = async () => {
+      if (mounted) {
+        await load();
+      }
+    };
+
+    loadFFmpeg();
+
     return () => {
-      const ffmpeg = ffmpegRef.current;
-      if (ffmpeg) {
-        ffmpeg.terminate();
+      mounted = false;
+      // Only terminate if FFmpeg was actually loaded
+      if (ffmpegRef.current && loaded) {
+        console.log('Cleaning up FFmpeg instance');
+        ffmpegRef.current.terminate();
+        ffmpegRef.current = null;
       }
     };
   }, []);
