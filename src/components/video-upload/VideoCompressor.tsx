@@ -4,6 +4,8 @@ import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { Upload, Video, FileVideo } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 
 const VideoCompressor = () => {
   const [loaded, setLoaded] = useState(false);
@@ -217,12 +219,7 @@ const VideoCompressor = () => {
 
               {(compressing || progress > 0) && (
                 <div className="space-y-2">
-                  <div className="w-full bg-background rounded-full h-2.5">
-                    <div
-                      className="bg-primary h-2.5 rounded-full transition-all duration-300"
-                      style={{ width: `${progress}%` }}
-                    ></div>
-                  </div>
+                  <Progress value={progress} />
                   <div className="text-center text-sm text-muted-foreground">
                     {progress}% complete
                   </div>
