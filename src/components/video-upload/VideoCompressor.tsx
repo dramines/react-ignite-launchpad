@@ -22,27 +22,35 @@ const VideoCompressor = () => {
   const load = async () => {
     const ffmpeg = ffmpegRef.current;
     try {
+      console.log('Loading FFmpeg...');
       setLoadingMessage('Downloading FFmpeg...');
       const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm';
       
+      // Add logging for debugging
       ffmpeg.on('log', ({ message }) => {
-        console.log(message);
+        console.log('FFmpeg Log:', message);
         if (messageRef.current) {
           messageRef.current.innerHTML = message;
         }
       });
 
+      // Progress monitoring
       ffmpeg.on('progress', ({ progress, time }) => {
         const percentage = Math.round(progress * 100);
+        console.log('Compression progress:', percentage);
         setProgress(percentage);
         setLoadingMessage(`Processing: ${percentage}% (${(time / 1000000).toFixed(1)}s)`);
       });
 
+      // Load FFmpeg with correct URLs and CORS headers
       await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript', {
+          type: 'module'
+        }),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
       });
       
+      console.log('FFmpeg loaded successfully');
       setLoaded(true);
       setLoadingMessage('');
     } catch (error) {
