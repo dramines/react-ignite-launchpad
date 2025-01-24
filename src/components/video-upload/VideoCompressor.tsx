@@ -42,11 +42,9 @@ const VideoCompressor = () => {
         setLoadingMessage(`Processing: ${percentage}% (${(time / 1000000).toFixed(1)}s)`);
       });
 
-      // Load FFmpeg with correct URLs and CORS headers
+      // Load FFmpeg with correct URLs
       await ffmpeg.load({
-        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript', {
-          type: 'module'
-        }),
+        coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
       });
       
