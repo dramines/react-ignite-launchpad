@@ -53,6 +53,28 @@ const Videos: React.FC<VideosProps> = ({ user }) => {
     handleSubmit
   } = useVideoUploadForm();
 
+  // Check for compressed video when component mounts
+  useEffect(() => {
+    const compressedVideoInfo = localStorage.getItem('compressedVideo');
+    const compressedVideoBlob = localStorage.getItem('compressedVideoBlob');
+    
+    if (compressedVideoInfo && compressedVideoBlob) {
+      const fileInfo = JSON.parse(compressedVideoInfo);
+      fetch(compressedVideoBlob)
+        .then(res => res.blob())
+        .then(blob => {
+          const file = new File([blob], fileInfo.name, {
+            type: fileInfo.type,
+            lastModified: fileInfo.lastModified,
+          });
+          setVideoFile(file);
+          // Clear the stored video data
+          localStorage.removeItem('compressedVideo');
+          localStorage.removeItem('compressedVideoBlob');
+        });
+    }
+  }, []);
+
   useEffect(() => {
     const videoSize = videoFile?.size || 0;
     const thumbnailSize = thumbnailFile?.size || 0;

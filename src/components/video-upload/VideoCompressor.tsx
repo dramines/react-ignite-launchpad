@@ -5,6 +5,7 @@ import { Upload, Video, FileVideo } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useNavigate } from 'react-router-dom';
 
 const VideoCompressor = () => {
   const [loaded, setLoaded] = useState(false);
@@ -19,6 +20,7 @@ const VideoCompressor = () => {
   const ffmpegRef = useRef<FFmpeg | null>(null);
   const messageRef = useRef<HTMLParagraphElement>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const load = async () => {
     try {
@@ -115,17 +117,17 @@ const VideoCompressor = () => {
       
       await ffmpeg.exec([
         '-i', 'input.mp4',
-        '-c:v', 'libx264',         // Video codec
-        '-crf', '32',              // Higher CRF = more compression
-        '-preset', 'veryfast',     // Much faster encoding
-        '-tune', 'fastdecode',     // Optimize for fast decoding
-        '-movflags', '+faststart', // Enable fast start for web playback
-        '-c:a', 'aac',            // Audio codec
-        '-b:a', '96k',            // Reduced audio bitrate
-        '-ac', '1',               // Convert to mono audio
-        '-vf', 'scale=iw*0.8:-2', // Reduce resolution by 20%
-        '-r', '24',               // Limit framerate to 24fps
-        '-y',                     // Overwrite output files
+        '-c:v', 'libx264',
+        '-crf', '32',
+        '-preset', 'veryfast',
+        '-tune', 'fastdecode',
+        '-movflags', '+faststart',
+        '-c:a', 'aac',
+        '-b:a', '96k',
+        '-ac', '1',
+        '-vf', 'scale=iw*0.8:-2',
+        '-r', '24',
+        '-y',
         'output.mp4'
       ]);
 
@@ -134,19 +136,29 @@ const VideoCompressor = () => {
       const blob = new Blob([data], { type: 'video/mp4' });
       setCompressedSize(blob.size);
       
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `compressed-${file.name}`;
-      a.click();
-      URL.revokeObjectURL(url);
+      const compressedFile = new File([blob], file.name, { type: 'video/mp4' });
+      
+      // Store the compressed file in localStorage to pass it back
+      const fileInfo = {
+        name: compressedFile.name,
+        size: compressedFile.size,
+        type: compressedFile.type,
+        lastModified: compressedFile.lastModified,
+      };
+      localStorage.setItem('compressedVideo', JSON.stringify(fileInfo));
+      localStorage.setItem('compressedVideoBlob', URL.createObjectURL(blob));
       
       setLoadingMessage('Compression complete!');
       setProgress(100);
       toast({
         title: "Success",
-        description: "Video compressed successfully!"
+        description: "Video compressed successfully! Redirecting..."
       });
+
+      // Navigate back to upload page after a short delay
+      setTimeout(() => {
+        navigate('/app/upload');
+      }, 1500);
     } catch (error) {
       console.error('Error during compression:', error);
       setLoadingMessage('Error compressing video. Please try again.');
