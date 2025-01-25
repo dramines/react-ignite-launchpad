@@ -77,10 +77,10 @@ export const submitOrder = async (orderData: OrderSubmission): Promise<any> => {
         total_price: item.total_price,
         size: item.size || '-',
         color: item.color || '-',
-        personalization: item.personalization || '-',
+        personalization: item.personalization || '-', // Ensure non-personalized items have "-"
         pack: item.pack || 'aucun',
         box: item.box || 'Sans box',
-        image: item.image // Added image field here
+        image: item.image
       })),
       price_details: {
         subtotal: Number(orderData.price_details.subtotal),
