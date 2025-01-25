@@ -28,19 +28,6 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
   const maxLength = isChemise ? 4 : 100;
   const remainingChars = maxLength - personalizationText.length;
 
-  // Calculate prices
-  const calculatePrices = () => {
-    if (!hasDiscount) return { currentPrice: item.price, originalPrice: item.price };
-    
-    const discountPercent = parseFloat(item.discount_product);
-    const originalPrice = item.originalPrice || (item.price / (1 - discountPercent / 100));
-    const currentPrice = item.price;
-    
-    return { currentPrice, originalPrice };
-  };
-
-  const { currentPrice, originalPrice } = calculatePrices();
-
   const handleSavePersonalization = () => {
     if (isChemise && personalizationText.length > 4) {
       toast({
@@ -134,44 +121,50 @@ const CartItemCard = ({ item, onUpdateQuantity, onRemove }: CartItemCardProps) =
           )}
 
           {!isPackagingFee && item.personalization && item.personalization !== '-' && (
+           /*  onClick={() => setIsPersonalizationOpen(true)} */
             <div className="mb-2 bg-gray-50 p-3 rounded-lg relative group cursor-pointer" >
               <p className="text-sm text-gray-600 pr-8">
                 Personnalisation: {item.personalization}
               </p>
+             {/*  <PenLine 
+                size={16} 
+                className="absolute right-2 top-2 text-[#700100] opacity-0 group-hover:opacity-100 transition-opacity"
+              /> */}
             </div>
           )}
 
           <div className="flex items-center justify-between sm:justify-start gap-4 mt-3">
-            <div className="flex items-center bg-[#F1F0FB] rounded-full px-3 py-1">
-              <button
-                onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                aria-label="Diminuer la quantité"
-                disabled={item.quantity <= 0}
-              >
-                <MinusCircle size={18} />
-              </button>
-              <span className="w-8 text-center font-medium text-[#1A1F2C] text-sm">{item.quantity}</span>
-              <button
-                onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                aria-label="Augmenter la quantité"
-                disabled={item.quantity >= 0}
-              >
-                <PlusCircle size={18} />
-              </button>
-            </div>
+          <div className="flex items-center bg-[#F1F0FB] rounded-full px-3 py-1">
+  <button
+    onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+    aria-label="Diminuer la quantité"
+    disabled={item.quantity <= 0} // Disable when quantity is 0 or less
+  >
+    <MinusCircle size={18} />
+  </button>
+  <span className="w-8 text-center font-medium text-[#1A1F2C] text-sm">{item.quantity}</span>
+  <button
+    onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+    aria-label="Augmenter la quantité"
+    disabled={item.quantity >= 0} // Disable when quantity reaches max limit
+  >
+    <PlusCircle size={18} />
+  </button>
+</div>
 
             <div className="flex items-center gap-3">
               <div className="text-base sm:text-lg font-medium">
-                {hasDiscount ? (
+                {hasDiscount && item.originalPrice ? (
                   <div className="flex flex-col items-end">
-                    <span className="text-[#700100]">{(currentPrice * item.quantity).toFixed(2)} TND</span>
+                    <span className="text-[#700100]">{(item.price * item.quantity).toFixed(2)} TND</span>
                     <span className="text-sm text-gray-500 line-through">
-                      {(originalPrice * item.quantity).toFixed(2)} TND
-                    </span>
+  {((item.price / (1 - parseFloat(item.discount_product) / 100)) * item.quantity).toFixed(2)} TND
+</span>
+
                   </div>
                 ) : (
                   <span className="text-[#1A1F2C]">
-                    {(currentPrice * item.quantity).toFixed(2)} TND
+                    {(item.price * item.quantity).toFixed(2)} TND
                   </span>
                 )}
               </div>
