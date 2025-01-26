@@ -1,84 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import Sidebar from './components/Sidebar';
-import ProductsPage from './components/products/ProductsPage';
-import OrdersTable from './components/OrdersTable';
-import VisitorsPage from './components/visitors/VisitorsPage';
-import LoginScreen from './components/auth/LoginScreen';
-import DashboardOverview from './components/dashboard/DashboardOverview';
-import ClientsPage from './components/clients/ClientsPage';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import Sidebar from './DashboardScreen/Sidebar';
+import MainContent from './DashboardScreen/MainContent';
+import TopBar from './DashboardScreen/TopBar';
+import UserSettings from './DashboardScreen/UserSettings';
+import History from './DashboardScreen/History';
+import Clients from './DashboardScreen/Clients';
+import Videos from './DashboardScreen/Videos';
+import VideoCompressor from './components/video-upload/VideoCompressor';
 
-const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [activePage, setActivePage] = useState<string>('dashboard');
+const App = () => {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
-
-  const checkAuthStatus = () => {
-    setIsLoading(true);
-    const authStatus = localStorage.getItem('isAuthenticated');
-    if (authStatus !== 'true') {
-      setIsAuthenticated(false);
-      setActivePage('dashboard');
-    } else {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
+  const ProtectedRoute = ({ element }: { element: React.ReactNode }) => {
+    return user ? element : <Navigate to="https://platform.draminesaid.com/" replace />;
   };
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-    localStorage.setItem('isAuthenticated', 'true');
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    localStorage.removeItem('isAuthenticated');
-    setActivePage('dashboard');
-  };
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#5a0c1a] border-t-transparent"></div>
-      </div>
-    );
-  }
-
-  if (!isAuthenticated) {
-    return <LoginScreen onLogin={handleLogin} />;
-  }
 
   return (
-    <div className="min-h-screen bg-[#f8fafc]">
-      <Sidebar 
-        activePage={activePage} 
-        setActivePage={setActivePage}
-        onLogout={handleLogout}
-      />
-      
-      <main className="ml-0 lg:ml-64 min-h-screen transition-all duration-300">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {activePage === 'dashboard' && <DashboardOverview />}
-          {activePage === 'products' && <ProductsPage />}
-          {activePage === 'orders' && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-[#5a0c1a]">Orders</h2>
-              <OrdersTable />
-            </div>
-          )}
-          {activePage === 'visitors' && <VisitorsPage />}
-          {activePage === 'clients' && (
-            <div className="space-y-6">
-              <ClientsPage />
-            </div>
-          )}
+    <Router>
+      <div className="flex min-h-screen bg-dashboard-background text-white">
+        <Sidebar user={user} />
+        <div className="flex-1 ml-64">
+          <TopBar />
+          <Routes>
+            <Route path="/" element={<MainContent user={user} />} />
+            <Route path="/app/settings" element={<ProtectedRoute element={<UserSettings user={user} />} />} />
+            <Route path="/app/history" element={<ProtectedRoute element={<History user={user} />} />} />
+            <Route path="/app/clients" element={<ProtectedRoute element={<Clients user={user} />} />} />
+            <Route path="/app/upload" element={<ProtectedRoute element={<Videos user={user} />} />} />
+            <Route path="/app/compress" element={<ProtectedRoute element={<VideoCompressor />} />} />
+            <Route path="/app" element={<MainContent user={user} />} />
+          </Routes>
+          <footer className="p-6 text-center text-sm text-muted-foreground">
+            &copy; {new Date().getFullYear()} <a href="http://draminesaid.com" className="hover:text-primary">draminesaid.com</a>
+          </footer>
         </div>
-      </main>
-    </div>
+      </div>
+    </Router>
   );
-}
+};
 
 export default App;
