@@ -1,236 +1,93 @@
-import React, { Suspense, useEffect } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { CartProvider } from "./components/cart/CartProvider";
-import { usePageTracking } from "./hooks/usePageTracking";
-import { ErrorBoundary } from "./components/ErrorBoundary";
-import { PageLoader } from "./components/PageLoader";
-import { AnimatePresence, motion } from "framer-motion";
-import { updateMetaTags } from './utils/seoUtils';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Sidebar from './components/Sidebar';
+import ProductsPage from './components/products/ProductsPage';
+import OrdersTable from './components/OrdersTable';
+import VisitorsPage from './components/visitors/VisitorsPage';
+import SettingsForm from './components/settings/SettingsForm';
+import LoginScreen from './components/auth/LoginScreen';
+import DashboardOverview from './components/dashboard/DashboardOverview';
+import ClientsPage from './components/clients/ClientsPage';  // Import ClientsPage
+import NewsLetter from './components/NewsLetter';
 
-const Index = React.lazy(() => import("./pages/Index"));
-const CategoryPage = React.lazy(() => import("./pages/CategoryPage"));
-const GiftUniversePage = React.lazy(() => import("./pages/GiftUniversePage"));
-const CartPage = React.lazy(() => import('./pages/CartPage'));
-const PaymentSuccessPage = React.lazy(() => import('./pages/PaymentSuccessPage'));
-const PaymentFailurePage = React.lazy(() => import('./pages/PaymentFailurePage'));
-const PromoCodesPage = React.lazy(() => import('./pages/PromoCodesPage'));
-const OrderPreviewPage = React.lazy(() => import('./pages/OrderPreviewPage'));
-const ProductDetailPage = React.lazy(() => import('./pages/ProductDetailPage'));
-const FooterCategoryPage = React.lazy(() => import('./pages/FooterCategoryPage'));
-const MondeFioriHistoire = React.lazy(() => import('./pages/MondeFioriHistoire'));
-const MondeFioriCollection = React.lazy(() => import('./pages/MondeFioriCollection'));
-const MondeFioriDNA = React.lazy(() => import('./pages/MondeFioriDNA'));
-const SurMesurePage = React.lazy(() => import('./pages/SurMesurePage'));
-const UniversCadeauxPage = React.lazy(() => import('./pages/UniversCadeauxPage'));
-const GiftCardsPage = React.lazy(() => import('@/pages/GiftCardsPage'));
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 2,
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      refetchOnWindowFocus: false,
-    },
-  },
-});
-
-// Wrapper component to implement tracking and meta updates
-const TrackingWrapper = ({ children }: { children: React.ReactNode }) => {
-  const location = useLocation();
-  usePageTracking();
+const App: React.FC = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [activePage, setActivePage] = useState<string>('dashboard');
 
   useEffect(() => {
-    // Update meta tags when route changes
-    updateMetaTags(location.pathname);
-    
-    const hasVisited = localStorage.getItem('hasVisited');
-    if (!hasVisited) {
-      localStorage.setItem('hasVisited', 'true');
-      if (location.pathname === '/new') {
-        localStorage.setItem('enteredThroughNew', 'true');
-      }
+    checkAuthStatus();
+  }, []);
+
+  const checkAuthStatus = () => {
+    setIsLoading(true);
+    const authStatus = localStorage.getItem('isAuthenticated');
+    if (authStatus !== 'true') {
+      setIsAuthenticated(false);
+      setActivePage('dashboard');
+    } else {
+      setIsAuthenticated(true);
     }
-  }, [location.pathname]);
+    setIsLoading(false);
+  };
 
-  return <>{children}</>;
-};
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem('isAuthenticated', 'true');
+  };
 
-// Page wrapper with transitions
-const PageWrapper = ({ children }: { children: React.ReactNode }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    transition={{ duration: 0.2 }}
-  >
-    {children}
-  </motion.div>
-);
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem('isAuthenticated');
+    setActivePage('dashboard');
+  };
 
-const App = () => (
-  <ErrorBoundary>
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <CartProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <TrackingWrapper>
-              <AnimatePresence mode="wait">
-                <Routes>
-                  {/* Add /new route before the catch-all */}
-                  <Route 
-                    path="/new" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <Index />
-                      </Suspense>
-                    } 
-                  />
-                  
-                  <Route 
-                    path="/" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <Index />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/category/*" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <CategoryPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/univers-cadeaux" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <UniversCadeauxPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/univers-cadeaux/*" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <GiftUniversePage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/product/:id" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <ProductDetailPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/cart" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <CartPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/promo-codes" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <PromoCodesPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/order-preview" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <OrderPreviewPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/payment-success" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <PaymentSuccessPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/payment-failure" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <PaymentFailurePage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/footer-category/*" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <FooterCategoryPage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/monde-fiori/histoire" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <MondeFioriHistoire />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/monde-fiori/collection" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <MondeFioriCollection />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/monde-fiori/dna" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <MondeFioriDNA />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/sur-mesure" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <SurMesurePage />
-                      </Suspense>
-                    } 
-                  />
-                  <Route 
-                    path="/gift-cards" 
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <GiftCardsPage />
-                      </Suspense>
-                    } 
-                  />
-                  
-                  {/* Catch-all route should be last */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </AnimatePresence>
-            </TrackingWrapper>
-          </BrowserRouter>
-        </CartProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
-  </ErrorBoundary>
-);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-[#5a0c1a] border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#f8fafc]">
+      <Sidebar 
+        activePage={activePage} 
+        setActivePage={setActivePage}
+        onLogout={handleLogout}
+      />
+      
+      <main className="ml-0 lg:ml-64 min-h-screen transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {activePage === 'dashboard' && <DashboardOverview />}
+          {activePage === 'products' && <ProductsPage />}
+          {activePage === 'orders' && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold text-[#5a0c1a]">Orders</h2>
+              <OrdersTable orders={[]} />
+            </div>
+          )}
+          {activePage === 'visitors' && <VisitorsPage />}
+          {activePage === 'clients' && (
+            <div className="space-y-6">
+              <ClientsPage />
+            </div>
+          )}
+
+   {activePage === 'newsletter' && (
+            <div className="space-y-6">
+              <NewsLetter />
+            </div>
+          )} 
+        </div>
+      </main>
+    </div>
+  );
+}
 
 export default App;
