@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import ProductsPage from './components/products/ProductsPage';
 import OrdersTable from './components/OrdersTable';
 import VisitorsPage from './components/visitors/VisitorsPage';
-import SettingsForm from './components/settings/SettingsForm';
 import LoginScreen from './components/auth/LoginScreen';
 import DashboardOverview from './components/dashboard/DashboardOverview';
-import ClientsPage from './components/clients/ClientsPage';  // Import ClientsPage
-import NewsLetter from './components/NewsLetter';
+import ClientsPage from './components/clients/ClientsPage';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -69,7 +66,7 @@ const App: React.FC = () => {
           {activePage === 'orders' && (
             <div className="space-y-6">
               <h2 className="text-2xl font-bold text-[#5a0c1a]">Orders</h2>
-              <OrdersTable orders={[]} />
+              <OrdersTable />
             </div>
           )}
           {activePage === 'visitors' && <VisitorsPage />}
@@ -78,12 +75,6 @@ const App: React.FC = () => {
               <ClientsPage />
             </div>
           )}
-
-   {activePage === 'newsletter' && (
-            <div className="space-y-6">
-              <NewsLetter />
-            </div>
-          )} 
         </div>
       </main>
     </div>
